@@ -9,11 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 
 @Service
 public class EventClient {
     private final RestTemplate restTemplate;
+    //TODO: Move url to application.yaml
     private final String eventServiceUrl = "http://localhost:8080/api/event";
     private final String vendorServiceUrl = "http://localhost:8082/api/vendors";
 
@@ -21,6 +26,7 @@ public class EventClient {
         this.restTemplate = builder.build();
     }
 
+    //Demo: Test RestTemplate, internal GET request.
     public List<EventDto> getEvents(){
         ResponseEntity<List<EventDto>> response = restTemplate.exchange(
                 eventServiceUrl,
@@ -31,6 +37,7 @@ public class EventClient {
         return response.getBody();
     }
 
+    //Demo: Test RestTemplate, external (vendor service) GET request.
     public List<VendorDto> getVendors(){
         ResponseEntity<List<VendorDto>> response = restTemplate.exchange(
                 vendorServiceUrl,
@@ -39,5 +46,17 @@ public class EventClient {
                 new ParameterizedTypeReference<List<VendorDto>>() {}
         );
         return response.getBody();
+    }
+
+
+    public List<VendorDto> getVendorsByIds(List<UUID> vendorIds){
+        if(vendorIds == null || vendorIds.isEmpty()){
+            return List.of();
+        }
+        Set<UUID> wanted = new HashSet<>(vendorIds);
+
+        return getVendors().stream()
+                .filter(vendor -> wanted.contains(vendor.id()))
+                .toList();
     }
 }

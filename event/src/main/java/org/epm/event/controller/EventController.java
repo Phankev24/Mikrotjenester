@@ -2,6 +2,7 @@ package org.epm.event.controller;
 
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.EventDto;
+import org.epm.event.dto.EventWithVendorsDto;
 import org.epm.event.dto.VendorDto;
 import org.epm.event.event.Event;
 import org.epm.event.service.EventService;
@@ -36,10 +37,20 @@ public class EventController {
         return ResponseEntity.ok(eventClient.getVendors());
     }
 
+    @GetMapping("/{id}/with-vendors")
+    public ResponseEntity<EventWithVendorsDto> getEventWithVendors(@PathVariable Long id){
+        return ResponseEntity.ok(eventService.getEventWithVendors(id));
+    }
+
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody EventDto eventDto){
         Event event = eventService.createEvent(eventDto);
-        System.out.println("Fetched Vendor from different service!!");
         return ResponseEntity.ok(event);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable Long id){
+        eventService.deleteById(id);
+        return ResponseEntity.ok("Event {id} deleted");
     }
 }

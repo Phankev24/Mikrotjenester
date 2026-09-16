@@ -7,10 +7,14 @@ import lombok.Setter;
 import org.epm.event.enumeration.EventCategory;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
+
 @Entity
 public class Event {
     @Id
@@ -20,15 +24,12 @@ public class Event {
     private String eventDescription;
     private int eventAttendance;
     private LocalDateTime eventDateTime;
+
     @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
 
-
-    public Event( String eventName, String eventDescription, int eventAttendance, LocalDateTime eventDateTime, EventCategory eventCategory){
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
-        this.eventAttendance = eventAttendance;
-        this.eventDateTime = eventDateTime;
-        this.eventCategory = eventCategory;
-    }
+    @ElementCollection
+    @CollectionTable(name = "event_vendor_ids", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "vendor_id")
+    private List<UUID> vendorIds = new ArrayList<>();
 }
