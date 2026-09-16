@@ -1,9 +1,6 @@
 package org.epm.event.event;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +19,7 @@ public class Event {
     private String eventDescription;
     private int eventAttendance;
     private LocalDateTime eventDateTime;
+    @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
 
 
