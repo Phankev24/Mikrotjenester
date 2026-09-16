@@ -1,7 +1,7 @@
 package org.epm.event.dto;
 
 import lombok.Data;
-import org.epm.event.event.EventCategory;
+import org.epm.event.enumeration.EventCategory;
 
 import java.time.LocalDateTime;
 

@@ -2,6 +2,7 @@ package org.epm.event.controller;
 
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.EventDto;
+import org.epm.event.dto.VendorDto;
 import org.epm.event.event.Event;
 import org.epm.event.service.EventService;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,15 @@ public class EventController {
         return ResponseEntity.ok(eventClient.getEvents());
     }
 
+    @GetMapping("/vendor")
+    public ResponseEntity<List<VendorDto>> fetchVendorViaRestTemplate(){
+        return ResponseEntity.ok(eventClient.getVendors());
+    }
+
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody EventDto eventDto){
         Event event = eventService.createEvent(eventDto);
+        System.out.println("Fetched Vendor from different service!!");
         return ResponseEntity.ok(event);
     }
 }
