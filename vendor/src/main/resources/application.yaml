@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: vendor
+  datasource:
+    url: jdbc:h2:mem:vendordb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: false   # turn on once you actually write migrations in db.migration
+
+server:
+  port: 8082

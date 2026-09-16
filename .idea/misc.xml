@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="EntryPointsManager">
+    <writeAnnotations>
+      <writeAnnotation name="lombok.Getter" />
+    </writeAnnotations>
+  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="KubernetesApiProvider"><![CDATA[{}]]></component>
   <component name="MavenProjectsManager">
@@ -7,6 +12,7 @@
       <list>
         <option value="$PROJECT_DIR$/monolith/pom.xml" />
         <option value="$PROJECT_DIR$/event/pom.xml" />
+        <option value="$PROJECT_DIR$/vendor/pom.xml" />
       </list>
     </option>
   </component>
