@@ -1,17 +1,21 @@
 package org.epm.user.user;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String FirstName;
     private String LastName;
     private String Email;
     private Long phoneNumber;
     //TODO add age for age verification, either age og birthday
+    //TODO add gender?
 
 
     public String getEmail() {

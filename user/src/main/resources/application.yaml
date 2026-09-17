@@ -15,12 +15,16 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: root
     password: password
-    url: jdbc:postgresql://localhost:5432/userPlanerManager
+    url: jdbc:postgresql://localhost:5433/userPlanerManager
   jpa:
     generate-ddl: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+event-service:
+  base-url: http://localhost:8080
+server:
+  port: 8081
 management:
   endpoints:
     web:

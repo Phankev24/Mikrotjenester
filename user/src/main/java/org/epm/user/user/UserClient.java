@@ -6,25 +6,26 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Component
+@Service
 public class UserClient {
 
     private final RestTemplate restTemplate;
-    private final String eventServiceBaseUrl;
+    private final String eventServiceUrl = "http://localhost:8080/api/event";
+    private final String userServiceUrl = "http://localhost:8081/api/event";
 
-    public UserClient(RestTemplate restTemplate,
-                       @Value("${event-service.base-url}") String eventServiceBaseUrl) {
+    public UserClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.eventServiceBaseUrl = eventServiceBaseUrl;
     }
+
 
     public List<EventDto> getAllEvents() {
         ResponseEntity<List<EventDto>> response = restTemplate.exchange(
-                eventServiceBaseUrl + "/api/event",
+                eventServiceUrl,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<EventDto>>() {}
