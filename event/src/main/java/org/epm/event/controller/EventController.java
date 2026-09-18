@@ -27,9 +27,9 @@ public class EventController {
         return ResponseEntity.ok(eventService.findAll());
     }
 
-    @GetMapping("/client/event")
-    public ResponseEntity<List<EventDto>> fetchViaRestTemplate(){
-        return ResponseEntity.ok(eventClient.getEvents());
+    @GetMapping("/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Long id){
+        return ResponseEntity.ok(eventService.findEventById(id));
     }
 
     @GetMapping("/vendor")
@@ -46,6 +46,12 @@ public class EventController {
     public ResponseEntity<Event> createEvent(@RequestBody EventDto eventDto){
         Event event = eventService.createEvent(eventDto);
         return ResponseEntity.ok(event);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Event> patchEvent(@PathVariable Long id, @RequestBody EventDto eventDto){
+        Event patchEvent = eventService.patchEvent(id, eventDto);
+        return ResponseEntity.ok(patchEvent);
     }
 
     @DeleteMapping("/{id}")

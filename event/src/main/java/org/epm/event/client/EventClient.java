@@ -1,6 +1,6 @@
 package org.epm.event.client;
 
-import org.epm.event.dto.EventDto;
+
 import org.epm.event.dto.VendorDto;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -19,23 +19,12 @@ import java.util.UUID;
 public class EventClient {
     private final RestTemplate restTemplate;
     //TODO: Move url to application.yaml
-    private final String eventServiceUrl = "http://localhost:8080/api/event";
     private final String vendorServiceUrl = "http://localhost:8082/api/vendors";
 
     public EventClient(RestTemplateBuilder builder){
         this.restTemplate = builder.build();
     }
 
-    //Demo: Test RestTemplate, internal GET request.
-    public List<EventDto> getEvents(){
-        ResponseEntity<List<EventDto>> response = restTemplate.exchange(
-                eventServiceUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<EventDto>>() {}
-        );
-        return response.getBody();
-    }
 
     //Demo: Test RestTemplate, external (vendor service) GET request.
     public List<VendorDto> getVendors(){

@@ -26,6 +26,10 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    public Event findEventById(Long id){
+        return eventRepository.findById(id).orElse(null);
+    }
+
     public Event createEvent(EventDto eventDto) {
         Event event = new Event();
         event.setEventName(eventDto.getEventName());
@@ -52,10 +56,39 @@ public class EventService {
         );
     }
 
-
     public void deleteById(Long id){
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found: " + id));
         eventRepository.delete(event);
+    }
+
+    public Event patchEvent(Long id, EventDto eventDto){
+        Event existingEvent = findEventById(id);
+
+        if(eventDto.getEventName() != null){
+            existingEvent.setEventName(eventDto.getEventName());
+        }
+
+        if(eventDto.getEventDescription() != null){
+            existingEvent.setEventDescription(eventDto.getEventDescription());
+        }
+
+        if(eventDto.getEventAttendance() != 0){
+            existingEvent.setEventAttendance(eventDto.getEventAttendance());
+        }
+
+        if(eventDto.getEventDateTime() != null){
+            existingEvent.setEventDateTime(eventDto.getEventDateTime());
+        }
+
+        if(eventDto.getEventCategory() != null){
+            existingEvent.setEventCategory(eventDto.getEventCategory());
+        }
+
+        if(eventDto.getVendorIds() != null && !eventDto.getVendorIds().isEmpty()){
+            existingEvent.setVendorIds(eventDto.getVendorIds());
+        }
+
+        return eventRepository.save(existingEvent);
     }
 }
