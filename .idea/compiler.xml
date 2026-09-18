@@ -16,8 +16,6 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
-        <module name="event" />
-        <module name="user" />
         <module name="vendor" />
       </profile>
       <profile name="Annotation profile for event" enabled="true">
