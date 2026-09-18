@@ -16,6 +16,8 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
+        <module name="event" />
+        <module name="user" />
         <module name="vendor" />
       </profile>
       <profile name="Annotation profile for event" enabled="true">
@@ -34,6 +36,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="event" options="-parameters" />
       <module name="monolith" options="-parameters" />
+      <module name="user" options="-parameters" />
       <module name="vendor" options="-parameters" />
     </option>
   </component>
