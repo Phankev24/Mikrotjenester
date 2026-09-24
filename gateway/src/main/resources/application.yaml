@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: gateway
+
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: event
+              uri: lb://event
+              predicates:
+                - Path=/api/event/**
+
+server:
+  port: 8100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
