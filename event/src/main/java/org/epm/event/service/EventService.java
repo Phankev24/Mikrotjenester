@@ -4,7 +4,7 @@ import org.epm.event.client.EventClient;
 import org.epm.event.dto.EventDto;
 import org.epm.event.dto.EventWithVendorsDto;
 import org.epm.event.event.Event;
-import org.epm.event.repository.EventRepository;
+import org.epm.event.event.EventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,13 +22,16 @@ public class EventService {
         this.eventClient = eventClient;
     }
 
+
     public List<Event> findAll() {
         return eventRepository.findAll();
     }
 
+
     public Event findEventById(Long id){
         return eventRepository.findById(id).orElse(null);
     }
+
 
     public Event createEvent(EventDto eventDto) {
         Event event = new Event();
@@ -40,6 +43,8 @@ public class EventService {
         event.setVendorIds(eventDto.getVendorIds());
         return eventRepository.save(event);
     }
+    
+
 
     public EventWithVendorsDto getEventWithVendors(Long eventId) {
         Event event = eventRepository.findById(eventId)
@@ -56,11 +61,13 @@ public class EventService {
         );
     }
 
+
     public void deleteById(Long id){
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found: " + id));
         eventRepository.delete(event);
     }
+
 
     public Event patchEvent(Long id, EventDto eventDto){
         Event existingEvent = findEventById(id);

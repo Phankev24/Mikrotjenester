@@ -32,6 +32,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.findEventById(id));
     }
 
+
     @GetMapping("/vendor")
     public ResponseEntity<List<VendorDto>> fetchVendorViaRestTemplate(){
         return ResponseEntity.ok(eventClient.getVendors());
@@ -41,6 +42,7 @@ public class EventController {
     public ResponseEntity<EventWithVendorsDto> getEventWithVendors(@PathVariable Long id){
         return ResponseEntity.ok(eventService.getEventWithVendors(id));
     }
+
 
     @PostMapping
     public ResponseEntity<Event> createEvent(@RequestBody EventDto eventDto){

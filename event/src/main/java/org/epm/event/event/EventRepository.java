@@ -1,5 +1,4 @@
-package org.epm.event.repository;
-import org.epm.event.event.Event;
+package org.epm.event.event;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
