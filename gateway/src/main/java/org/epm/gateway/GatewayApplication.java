@@ -1,13 +1,13 @@
-package org.epm.monolith;
+package org.epm.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MonolithApplication {
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MonolithApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
 }
