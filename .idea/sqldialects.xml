@@ -2,9 +2,10 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/event/src/main/resources/db/migration/V001__Initial_event_schema.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/event/src/main/resources/db/migration/V002__Inser_data_into_event.sql" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/event/src/main/resources/db/migration/V003__event_vendor_table.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/event/src/main/resources/db/migration/V002__Inser_data_into_event.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/event/src/main/resources/db/migration/V003__event_vendor_table.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/user/src/main/resources/db/migration/V1__create_user_table.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/user/src/main/resources/db/migration/V2__insert_test_users.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/vendor/src/main/resources/db/migration/V001__Initial_vendor_schema.sql" dialect="PostgreSQL" />
   </component>
 </project>

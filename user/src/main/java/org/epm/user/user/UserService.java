@@ -16,6 +16,6 @@ public class UserService {
 
     public List<User> findAll() {
         List<User> users = userRepo.findAll();
-        return users;
+        return userRepo.findAll();
     }
 }

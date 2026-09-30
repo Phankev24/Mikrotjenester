@@ -5,69 +5,32 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String FirstName;
-    private String LastName;
-    private String Email;
-    private Long phoneNumber;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phoneNumber;
     //TODO add age for age verification, either age og birthday
     //TODO add gender?
 
 
-    public String getEmail() {
-        return Email;
-    }
-
-    public void setEmail(String email) {
-        Email = email;
-    }
-
-    public String getFirstName() {
-        return FirstName;
-    }
-
-    public void setFirstName(String firstName) {
-        FirstName = firstName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getLastName() {
-        return LastName;
-    }
-
-    public void setLastName(String lastName) {
-        LastName = lastName;
-    }
-
-    public Long getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(Long phoneNumber) {
+    public User(String phoneNumber, String lastName, String firstName, String email) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public User() {
-    }
-
-    public User(String email, String firstName, Long id, String lastName, Long phoneNumber) {
-        Email = email;
-        FirstName = firstName;
-        this.id = id;
-        LastName = lastName;
-        this.phoneNumber = phoneNumber;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.email = email;
     }
 }
