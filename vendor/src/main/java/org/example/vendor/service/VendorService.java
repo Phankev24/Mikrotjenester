@@ -1,5 +1,6 @@
 package org.example.vendor.service;
 
+import org.example.vendor.dto.VendorRequestMapper;
 import org.example.vendor.repository.VendorRepo;
 import org.example.vendor.vendor.Vendor;
 import org.example.vendor.dto.VendorRequest;
@@ -9,29 +10,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-
-
 @Service
 public class VendorService {
 
     private final VendorRepo vendorRepo;
+    private final VendorRequestMapper vendorRequestMapper;
 
-    public VendorService(VendorRepo vendorRepo) {
+    public VendorService(VendorRepo vendorRepo, VendorRequestMapper vendorRequestMapper) {
         this.vendorRepo = vendorRepo;
+        this.vendorRequestMapper = vendorRequestMapper;
     }
 
-    public VendorResponse createVendor(UUID userId, VendorRequest request) {
-        Vendor vendor = new Vendor(
-                userId,
-                request.type(),
-                request.companyName(),
-                request.servicesDescription(),
-                request.website(),
-                request.phone()
-        );
-
-        vendorRepo.save(vendor);
-        return toResponse(vendor);
+    public VendorRequest createVendor(VendorRequest request) {
+        Vendor vendorEntity = vendorRequestMapper.toEntity(request);
+        Vendor savedVendor = vendorRepo.save(vendorEntity);
+        return vendorRequestMapper.toDTO(savedVendor);
     }
 
     public List<VendorResponse> getAllVendors() {
@@ -41,12 +34,10 @@ public class VendorService {
                 .toList();
     }
 
-    // PATCH — update vendor partially
     public VendorResponse updateVendor(UUID vendorId, VendorRequest request) {
         Vendor vendor = vendorRepo.findById(vendorId)
                 .orElseThrow(() -> new RuntimeException("Vendor not found"));
 
-        // Only update fields that are present in the request
         if (request.type() != null) vendor.setType(request.type());
         if (request.companyName() != null) vendor.setCompanyName(request.companyName());
         if (request.servicesDescription() != null) vendor.setServicesDescription(request.servicesDescription());
@@ -57,7 +48,6 @@ public class VendorService {
         return toResponse(vendor);
     }
 
-    // DELETE — remove vendor
     public void deleteVendor(UUID vendorId) {
         if (!vendorRepo.existsById(vendorId)) {
             throw new RuntimeException("Vendor not found");
@@ -67,8 +57,8 @@ public class VendorService {
 
     private VendorResponse toResponse(Vendor vendor) {
         return new VendorResponse(
-                vendor.getId(),
                 vendor.getUserId(),
+                vendor.getId(),
                 vendor.getType(),
                 vendor.getCompanyName(),
                 vendor.getServicesDescription(),

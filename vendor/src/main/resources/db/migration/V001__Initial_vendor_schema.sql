@@ -1,6 +1,7 @@
 create table if not exists vendor (
-    id uuid primary key,
-    user_id uuid, type varchar(255),
+    user_id bigserial primary key,
+    id uuid not null unique,
+    type varchar(255),
     company_name varchar(255),
     services_description varchar(255),
     website varchar(255),
