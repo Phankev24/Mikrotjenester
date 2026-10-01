@@ -30,4 +30,19 @@ public class VendorController {
     public List<VendorResponse> getAllVendors() {
         return vendorService.getAllVendors();
     }
+
+    // PATCH — update vendor
+    @PatchMapping("/{vendorId}")
+    public VendorResponse updateVendor(
+            @PathVariable UUID vendorId,
+            @RequestBody VendorRequest request
+    ) {
+        return vendorService.updateVendor(vendorId, request);
+    }
+
+    // DELETE — remove vendor
+    @DeleteMapping("/{vendorId}")
+    public void deleteVendor(@PathVariable UUID vendorId) {
+        vendorService.deleteVendor(vendorId);
+    }
 }

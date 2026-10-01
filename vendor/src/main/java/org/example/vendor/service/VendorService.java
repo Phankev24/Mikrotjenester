@@ -5,8 +5,11 @@ import org.example.vendor.vendor.Vendor;
 import org.example.vendor.dto.VendorRequest;
 import org.example.vendor.dto.VendorResponse;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
+
+
 
 @Service
 public class VendorService {
@@ -28,7 +31,6 @@ public class VendorService {
         );
 
         vendorRepo.save(vendor);
-
         return toResponse(vendor);
     }
 
@@ -37,6 +39,30 @@ public class VendorService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    // PATCH — update vendor partially
+    public VendorResponse updateVendor(UUID vendorId, VendorRequest request) {
+        Vendor vendor = vendorRepo.findById(vendorId)
+                .orElseThrow(() -> new RuntimeException("Vendor not found"));
+
+        // Only update fields that are present in the request
+        if (request.type() != null) vendor.setType(request.type());
+        if (request.companyName() != null) vendor.setCompanyName(request.companyName());
+        if (request.servicesDescription() != null) vendor.setServicesDescription(request.servicesDescription());
+        if (request.website() != null) vendor.setWebsite(request.website());
+        if (request.phone() != null) vendor.setPhone(request.phone());
+
+        vendorRepo.save(vendor);
+        return toResponse(vendor);
+    }
+
+    // DELETE — remove vendor
+    public void deleteVendor(UUID vendorId) {
+        if (!vendorRepo.existsById(vendorId)) {
+            throw new RuntimeException("Vendor not found");
+        }
+        vendorRepo.deleteById(vendorId);
     }
 
     private VendorResponse toResponse(Vendor vendor) {
