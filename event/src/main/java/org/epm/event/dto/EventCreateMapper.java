@@ -2,11 +2,7 @@ package org.epm.event.dto;
 
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.UUID;
 
 @Component
 public class EventCreateMapper {

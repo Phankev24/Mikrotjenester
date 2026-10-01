@@ -1,6 +1,5 @@
 package org.epm.event.service;
 
-import org.epm.event.client.EventClient;
 import org.epm.event.dto.*;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
