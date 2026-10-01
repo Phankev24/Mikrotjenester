@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.epm.event.enumeration.EventCategory;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
 
+    private UUID vendorId;
     private String eventName;
     private String eventDescription;
     private int eventAttendance;
