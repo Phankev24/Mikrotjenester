@@ -20,6 +20,7 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
+
     private String eventName;
     private String eventDescription;
     private int eventAttendance;
@@ -28,8 +29,12 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
 
-    @ElementCollection
-    @CollectionTable(name = "event_vendor_ids", joinColumns = @JoinColumn(name = "event_id"))
-    @Column(name = "vendor_id")
-    private List<UUID> vendorIds = new ArrayList<>();
+
+    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, int eventAttendance, String eventDescription, String eventName) {
+        this.eventCategory = eventCategory;
+        this.eventDateTime = eventDateTime;
+        this.eventAttendance = eventAttendance;
+        this.eventDescription = eventDescription;
+        this.eventName = eventName;
+    }
 }

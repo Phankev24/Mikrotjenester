@@ -1,8 +1,7 @@
 package org.epm.event.service;
 
 import org.epm.event.client.EventClient;
-import org.epm.event.dto.EventDto;
-import org.epm.event.dto.EventWithVendorsDto;
+import org.epm.event.dto.*;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
 import org.springframework.http.HttpStatus;
@@ -15,87 +14,66 @@ import java.util.List;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
-    private final EventClient eventClient;
+    private final EventResponseMapper eventResponseMapper;
+    private final EventCreateMapper eventCreateMapper;
 
-    public EventService(EventRepository eventRepository, EventClient eventClient) {
+    public EventService(EventRepository eventRepository, EventResponseMapper eventResponseMapper, EventCreateMapper eventCreateMapper) {
         this.eventRepository = eventRepository;
-        this.eventClient = eventClient;
+        this.eventResponseMapper = eventResponseMapper;
+        this.eventCreateMapper = eventCreateMapper;
     }
 
-
-    public List<Event> findAll() {
-        return eventRepository.findAll();
+    public List<EventResponseDto> getAllEvents(){
+        return eventRepository.findAll()
+                .stream()
+                .map(eventResponseMapper::toDTO)
+                .toList();
     }
 
-
-    public Event findEventById(Long id){
-        return eventRepository.findById(id).orElse(null);
+    public EventResponseDto getEventById(Long id){
+        return eventRepository.findById(id)
+                .map(eventResponseMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Event not found with this id" + id)) ;
     }
 
-
-    public Event createEvent(EventDto eventDto) {
-        Event event = new Event();
-        event.setEventName(eventDto.getEventName());
-        event.setEventDescription(eventDto.getEventDescription());
-        event.setEventAttendance(eventDto.getEventAttendance());
-        event.setEventDateTime(eventDto.getEventDateTime());
-        event.setEventCategory(eventDto.getEventCategory());
-        event.setVendorIds(eventDto.getVendorIds());
-        return eventRepository.save(event);
-    }
-    
-
-
-    public EventWithVendorsDto getEventWithVendors(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found: " + eventId));
-
-        return new EventWithVendorsDto(
-                event.getEventId(),
-                event.getEventName(),
-                event.getEventDescription(),
-                event.getEventAttendance(),
-                event.getEventDateTime(),
-                event.getEventCategory(),
-                eventClient.getVendorsByIds(event.getVendorIds())
-        );
+    public EventResponseDto createEvent(EventCreateDto eventCreateDto){
+        Event eventEntity = eventCreateMapper.toEntity(eventCreateDto);
+        Event savedEvent = eventRepository.save(eventEntity);
+        return eventResponseMapper.toDTO(savedEvent);
     }
 
+    public EventResponseDto updateEvent(Long id, EventUpdateDto eventUpdateDto){
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with this id: " + id));
 
-    public void deleteById(Long id){
+        if(eventUpdateDto.eventName() != null){
+            event.setEventName(eventUpdateDto.eventName());
+        }
+
+        if(eventUpdateDto.eventDescription() != null){
+            event.setEventDescription(eventUpdateDto.eventDescription());
+        }
+
+        if(eventUpdateDto.eventAttendance() > 0){
+            event.setEventAttendance(eventUpdateDto.eventAttendance());
+        }
+
+        if(eventUpdateDto.eventCategory()!= null){
+            event.setEventCategory(eventUpdateDto.eventCategory());
+        }
+
+        if(eventUpdateDto.eventDateTime() != null){
+            event.setEventDateTime(eventUpdateDto.eventDateTime());
+        }
+
+        Event updatedEvent = eventRepository.save(event);
+
+        return eventResponseMapper.toDTO(updatedEvent);
+    }
+
+    public void deleteEvent(Long id){
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found: " + id));
         eventRepository.delete(event);
-    }
-
-
-    public Event patchEvent(Long id, EventDto eventDto){
-        Event existingEvent = findEventById(id);
-
-        if(eventDto.getEventName() != null){
-            existingEvent.setEventName(eventDto.getEventName());
-        }
-
-        if(eventDto.getEventDescription() != null){
-            existingEvent.setEventDescription(eventDto.getEventDescription());
-        }
-
-        if(eventDto.getEventAttendance() != 0){
-            existingEvent.setEventAttendance(eventDto.getEventAttendance());
-        }
-
-        if(eventDto.getEventDateTime() != null){
-            existingEvent.setEventDateTime(eventDto.getEventDateTime());
-        }
-
-        if(eventDto.getEventCategory() != null){
-            existingEvent.setEventCategory(eventDto.getEventCategory());
-        }
-
-        if(eventDto.getVendorIds() != null && !eventDto.getVendorIds().isEmpty()){
-            existingEvent.setVendorIds(eventDto.getVendorIds());
-        }
-
-        return eventRepository.save(existingEvent);
     }
 }
