@@ -11,14 +11,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "vendor")
 public class Vendor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;                // sekvensielt id (DB generert)
 
-    @Column(nullable = false)
-    private UUID id;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;            // UUID for eier/bruker
 
     @Enumerated(EnumType.STRING)
     private VendorType type;
@@ -28,19 +29,17 @@ public class Vendor {
     private String website;
     private String phone;
 
-    public Vendor(String phone, String website, String servicesDescription, String companyName, VendorType type, UUID id) {
-        this.phone = phone;
-        this.website = website;
-        this.servicesDescription = servicesDescription;
-        this.companyName = companyName;
+    public Vendor(UUID userId,
+                  VendorType type,
+                  String companyName,
+                  String servicesDescription,
+                  String website,
+                  String phone) {
+        this.userId = userId;
         this.type = type;
-        this.id = id;
-    }
-
-    @PrePersist
-    public void generateUuid(){
-        if(this.id == null){
-            this.id = UUID.randomUUID();
-        }
+        this.companyName = companyName;
+        this.servicesDescription = servicesDescription;
+        this.website = website;
+        this.phone = phone;
     }
 }

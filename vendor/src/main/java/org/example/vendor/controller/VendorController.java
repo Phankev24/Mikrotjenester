@@ -3,11 +3,9 @@ package org.example.vendor.controller;
 import org.example.vendor.dto.VendorRequest;
 import org.example.vendor.dto.VendorResponse;
 import org.example.vendor.service.VendorService;
-import org.example.vendor.vendor.Vendor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -22,35 +20,35 @@ public class VendorController {
         this.vendorService = vendorService;
     }
 
+    // Forvent at klient sender x-user-id i header (bruk ekte auth senere)
     @PostMapping
-    public ResponseEntity<VendorRequest> createVendor(@RequestBody VendorRequest request){
-        VendorRequest createdVendor = vendorService.createVendor(request);
+    public ResponseEntity<VendorResponse> createVendor(
+            @RequestHeader("x-user-id") UUID userId,
+            @RequestBody VendorRequest request) {
+        VendorResponse createdVendor = vendorService.createVendor(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdVendor);
     }
-
-
-
-
-
-
 
     @GetMapping
     public List<VendorResponse> getAllVendors() {
         return vendorService.getAllVendors();
     }
 
-    // PATCH — update vendor
-    @PatchMapping("/{vendorId}")
-    public VendorResponse updateVendor(
-            @PathVariable UUID vendorId,
-            @RequestBody VendorRequest request
-    ) {
-        return vendorService.updateVendor(vendorId, request);
+    @GetMapping("/{id}")
+    public VendorResponse getVendor(@PathVariable Long id) {
+        return vendorService.getById(id);
     }
 
-    // DELETE — remove vendor
-    @DeleteMapping("/{vendorId}")
-    public void deleteVendor(@PathVariable UUID vendorId) {
-        vendorService.deleteVendor(vendorId);
+    @PatchMapping("/{id}")
+    public VendorResponse updateVendor(
+            @PathVariable Long id,
+            @RequestBody VendorRequest request
+    ) {
+        return vendorService.updateVendor(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteVendor(@PathVariable Long id) {
+        vendorService.deleteVendor(id);
     }
 }
