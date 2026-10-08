@@ -1,10 +1,12 @@
 package org.example.vendor.service;
 
+import org.example.vendor.client.EventClient;
 import org.example.vendor.repository.VendorRepo;
 import org.example.vendor.vendor.Vendor;
-import org.example.vendor.dto.VendorRequest;
-import org.example.vendor.dto.VendorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,69 +15,49 @@ import java.util.UUID;
 public class VendorService {
 
     private final VendorRepo vendorRepo;
+    private final EventClient eventClient;
 
-    public VendorService(VendorRepo vendorRepo) {
+    public VendorService(VendorRepo vendorRepo, EventClient eventClient) {
         this.vendorRepo = vendorRepo;
+        this.eventClient = eventClient;
     }
 
-    public VendorResponse createVendor(UUID userId, VendorRequest request) {
-        Vendor vendor = new Vendor(
-                userId,
-                request.type(),
-                request.companyName(),
-                request.servicesDescription(),
-                request.website(),
-                request.phone()
-        );
-
-        vendorRepo.save(vendor);
-        return toResponse(vendor);
+    @Transactional
+    public Vendor createVendor(Vendor vendor, boolean validateEvent) {
+        if (validateEvent && !eventClient.eventExists(vendor.getEventId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Event not found: " + vendor.getEventId());
+        }
+        return vendorRepo.save(vendor);
     }
 
-    public List<VendorResponse> getAllVendors() {
-        return vendorRepo.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    public List<Vendor> getAllVendors() {
+        return vendorRepo.findAll();
     }
 
-    public VendorResponse getById(Long id) {
+    public List<Vendor> getVendorsByEvent(UUID eventId) {
+        return vendorRepo.findByEventId(eventId);
+    }
+
+    @Transactional
+    public Vendor updateVendor(Long id, Vendor patch) {
         Vendor vendor = vendorRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vendor not found"));
-        return toResponse(vendor);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found: " + id));
+
+        if (patch.getType() != null) vendor.setType(patch.getType());
+        if (patch.getCompanyName() != null) vendor.setCompanyName(patch.getCompanyName());
+        if (patch.getServicesDescription() != null) vendor.setServicesDescription(patch.getServicesDescription());
+        if (patch.getWebsite() != null) vendor.setWebsite(patch.getWebsite());
+        if (patch.getPhone() != null) vendor.setPhone(patch.getPhone());
+
+        return vendorRepo.save(vendor);
     }
 
-    public VendorResponse updateVendor(Long id, VendorRequest request) {
-        Vendor vendor = vendorRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Vendor not found"));
-
-        if (request.type() != null) vendor.setType(request.type());
-        if (request.companyName() != null) vendor.setCompanyName(request.companyName());
-        if (request.servicesDescription() != null) vendor.setServicesDescription(request.servicesDescription());
-        if (request.website() != null) vendor.setWebsite(request.website());
-        if (request.phone() != null) vendor.setPhone(request.phone());
-
-        vendorRepo.save(vendor);
-        return toResponse(vendor);
-    }
-
+    @Transactional
     public void deleteVendor(Long id) {
         if (!vendorRepo.existsById(id)) {
-            throw new RuntimeException("Vendor not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found: " + id);
         }
         vendorRepo.deleteById(id);
     }
-
-    private VendorResponse toResponse(Vendor vendor) {
-        return new VendorResponse(
-                vendor.getId(),
-                vendor.getUserId(),
-                vendor.getType(),
-                vendor.getCompanyName(),
-                vendor.getServicesDescription(),
-                vendor.getWebsite(),
-                vendor.getPhone()
-        );
-    }
-
 }

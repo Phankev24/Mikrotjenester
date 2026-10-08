@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.UUID;
-
 @Entity
 @Getter
 @Setter
@@ -16,10 +14,10 @@ public class Vendor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;                // sekvensielt id (DB generert)
+    private Long id;                // sekvensiell PK
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;            // UUID for eier/bruker
+    @Column(nullable = false)
+    private UUID eventId;           // UUID fra Event-tjenesten
 
     @Enumerated(EnumType.STRING)
     private VendorType type;
@@ -29,13 +27,13 @@ public class Vendor {
     private String website;
     private String phone;
 
-    public Vendor(UUID userId,
+    public Vendor(UUID eventId,
                   VendorType type,
                   String companyName,
                   String servicesDescription,
                   String website,
                   String phone) {
-        this.userId = userId;
+        this.eventId = eventId;
         this.type = type;
         this.companyName = companyName;
         this.servicesDescription = servicesDescription;

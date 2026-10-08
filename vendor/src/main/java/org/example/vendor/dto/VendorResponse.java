@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record VendorResponse(
         Long id,
-        UUID userId,
+        UUID eventId,
         VendorType type,
         String companyName,
         String servicesDescription,

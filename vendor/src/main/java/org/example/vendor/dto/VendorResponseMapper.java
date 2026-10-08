@@ -10,8 +10,8 @@ public class VendorResponseMapper {
         if (vendor == null) return null;
 
         return new VendorResponse(
-                vendor.getId(),       // Long id (sekvensielt)
-                vendor.getUserId(),   // UUID userId
+                vendor.getId(),
+                vendor.getEventId(),
                 vendor.getType(),
                 vendor.getCompanyName(),
                 vendor.getServicesDescription(),

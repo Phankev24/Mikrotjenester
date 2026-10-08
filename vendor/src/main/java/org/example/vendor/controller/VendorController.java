@@ -1,8 +1,8 @@
 package org.example.vendor.controller;
 
-import org.example.vendor.dto.VendorRequest;
-import org.example.vendor.dto.VendorResponse;
+import org.example.vendor.dto.*;
 import org.example.vendor.service.VendorService;
+import org.example.vendor.vendor.Vendor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,39 +15,51 @@ import java.util.UUID;
 public class VendorController {
 
     private final VendorService vendorService;
+    private final VendorRequestMapper requestMapper;
+    private final VendorResponseMapper responseMapper;
 
-    public VendorController(VendorService vendorService) {
+    public VendorController(VendorService vendorService,
+                            VendorRequestMapper requestMapper,
+                            VendorResponseMapper responseMapper) {
         this.vendorService = vendorService;
+        this.requestMapper = requestMapper;
+        this.responseMapper = responseMapper;
     }
 
-    // Forvent at klient sender x-user-id i header (bruk ekte auth senere)
     @PostMapping
     public ResponseEntity<VendorResponse> createVendor(
-            @RequestHeader("x-user-id") UUID userId,
-            @RequestBody VendorRequest request) {
-        VendorResponse createdVendor = vendorService.createVendor(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdVendor);
+            @RequestHeader(value = "x-event-id", required = false) UUID eventId,
+            @RequestBody(required = false) VendorRequest request) {
+
+        boolean eventProvided = eventId != null;
+        UUID effectiveEventId = eventProvided ? eventId : UUID.randomUUID();
+
+        Vendor saved = vendorService.createVendor(
+                requestMapper.toEntity(effectiveEventId, request),
+                eventProvided);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toResponse(saved));
     }
 
     @GetMapping
     public List<VendorResponse> getAllVendors() {
-        return vendorService.getAllVendors();
+        return vendorService.getAllVendors().stream().map(responseMapper::toResponse).toList();
     }
 
-    @GetMapping("/{id}")
-    public VendorResponse getVendor(@PathVariable Long id) {
-        return vendorService.getById(id);
+    @GetMapping("/event/{eventId}")
+    public List<VendorResponse> getVendorsByEvent(@PathVariable UUID eventId) {
+        return vendorService.getVendorsByEvent(eventId).stream().map(responseMapper::toResponse).toList();
     }
 
     @PatchMapping("/{id}")
-    public VendorResponse updateVendor(
-            @PathVariable Long id,
-            @RequestBody VendorRequest request
-    ) {
-        return vendorService.updateVendor(id, request);
+    public VendorResponse updateVendor(@PathVariable Long id,
+                                       @RequestBody VendorRequest request) {
+        Vendor updated = vendorService.updateVendor(id, requestMapper.toPatchEntity(request));
+        return responseMapper.toResponse(updated);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVendor(@PathVariable Long id) {
         vendorService.deleteVendor(id);
     }
