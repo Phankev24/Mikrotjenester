@@ -2,6 +2,14 @@ spring:
   application:
     name: vendor
 
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+
   flyway:
     enabled: false
 
