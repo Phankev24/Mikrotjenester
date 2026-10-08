@@ -30,6 +30,8 @@ public class EventClient {
         return response.getBody();
     }
 
+
+
     public List<VendorResponseDto> getVendorsByVendorId(UUID vendorId){
         String url = vendorServiceUrl + "/vendor/" + vendorId;
         ResponseEntity<List<VendorResponseDto>> response = restTemplate.exchange(

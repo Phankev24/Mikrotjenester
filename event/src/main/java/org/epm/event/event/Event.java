@@ -19,6 +19,9 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID externalEventId;
+
     private UUID vendorId;
     private String eventName;
     private String eventDescription;
@@ -29,11 +32,20 @@ public class Event {
     private EventCategory eventCategory;
 
 
-    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, int eventAttendance, String eventDescription, String eventName) {
+    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, int eventAttendance, String eventDescription, String eventName, UUID vendorId, UUID externalEventId) {
         this.eventCategory = eventCategory;
         this.eventDateTime = eventDateTime;
         this.eventAttendance = eventAttendance;
         this.eventDescription = eventDescription;
         this.eventName = eventName;
+        this.vendorId = vendorId;
+        this.externalEventId = externalEventId;
+    }
+
+    @PrePersist
+    public void generateUuid(){
+        if (this.externalEventId == null){
+            this.externalEventId = UUID.randomUUID();
+        }
     }
 }

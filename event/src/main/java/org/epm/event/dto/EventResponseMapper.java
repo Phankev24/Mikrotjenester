@@ -10,6 +10,7 @@ public class EventResponseMapper {
 
         return new EventResponseDto(
                 event.getEventId(),
+                event.getExternalEventId(),
                 event.getVendorId(),
                 event.getEventName(),
                 event.getEventDescription(),

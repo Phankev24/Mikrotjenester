@@ -4,13 +4,11 @@ import org.epm.event.enumeration.EventCategory;
 
 import java.util.UUID;
 
-
-public record EventResponseDto(
-        Long eventId,
-        UUID externalEventId,
-        UUID vendorId,
+public record EventVendorCreateDto(
         String eventName,
         String eventDescription,
+        UUID vendorId,
         int eventAttendance,
         EventCategory eventCategory
-){}
+) {
+}
