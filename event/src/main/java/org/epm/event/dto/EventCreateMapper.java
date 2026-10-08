@@ -12,18 +12,6 @@ public class EventCreateMapper {
         this.eventRepository = eventRepository;
     }
 
-    public EventCreateDto toDTO(Event event){
-        if(event == null) return null;
-
-        return new EventCreateDto(
-                event.getEventName(),
-                event.getVendorId(),
-                event.getEventDescription(),
-                event.getEventAttendance(),
-                event.getEventCategory()
-        );
-    }
-
     public Event toEntity(EventCreateDto eventCreateDto){
         if(eventCreateDto == null) return null;
 

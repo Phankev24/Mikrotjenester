@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 
 @Component
-public class EventClient {
+public class        EventClient {
 
     private final RestClient restClient;
 

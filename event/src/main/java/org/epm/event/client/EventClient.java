@@ -2,6 +2,8 @@ package org.epm.event.client;
 
 import org.epm.event.dto.VendorResponseDto;
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,17 @@ public class EventClient {
     public List<VendorResponseDto> getAllVendors(){
         ResponseEntity<List<VendorResponseDto>> response = restTemplate.exchange(
                 vendorServiceUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<VendorResponseDto>>() {}
+        );
+        return response.getBody();
+    }
+
+    public List<VendorResponseDto> getVendorsByVendorId(UUID vendorId){
+        String url = vendorServiceUrl + "/vendor/" + vendorId;
+        ResponseEntity<List<VendorResponseDto>> response = restTemplate.exchange(
+                url,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<VendorResponseDto>>() {}
