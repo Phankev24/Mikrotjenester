@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 public record EventUpdateDto(
         String eventName,
         String eventDescription,
-        int eventAttendance,
+        EventCategory eventCategory,
         String eventLocation,
         LocalDateTime eventDateTime,
-        EventCategory eventCategory
+        int eventAttendance
 ) {
 }

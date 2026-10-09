@@ -15,9 +15,10 @@ public class EventResponseMapper {
                 event.getExternalVendorId(),
                 event.getEventName(),
                 event.getEventDescription(),
-                event.getEventAttendance(),
+                event.getEventCategory(),
                 event.getEventLocation(),
-                event.getEventCategory()
+                event.getEventDateTime(),
+                event.getEventAttendance()
         );
     }
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.epm.event.enumeration.EventCategory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -57,6 +58,10 @@ public class Event {
         }
         if(this.externalUserId == null){
             this.externalUserId = UUID.randomUUID();
+        }
+        //TODO: Auto generates datetime now but changes later for self input. cannot be null
+        if(this.eventDateTime == null){
+            this.eventDateTime = LocalDateTime.now();
         }
     }
 }

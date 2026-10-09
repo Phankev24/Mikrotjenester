@@ -16,12 +16,12 @@ public class EventCreateMapper {
         if(eventCreateDto == null) return null;
 
         Event event = new Event();
+        event.setExternalVendorId(eventCreateDto.externalVendorId());
         event.setEventName(eventCreateDto.eventName());
-        event.setExternalVendorId(eventCreateDto.vendorId());
         event.setEventDescription(eventCreateDto.eventDescription());
-        event.setEventAttendance(eventCreateDto.eventAttendance());
-        event.setEventLocation(eventCreateDto.eventLocation());
         event.setEventCategory(eventCreateDto.eventCategory());
+        event.setEventLocation(eventCreateDto.eventLocation());
+        event.setEventAttendance(eventCreateDto.eventAttendance());
 
         return event;
     }

@@ -6,11 +6,12 @@ import java.util.UUID;
 
 
 public record EventCreateDto(
+        UUID externalVendorId,
         String eventName,
-        UUID vendorId,
         String eventDescription,
-        int eventAttendance,
+        EventCategory eventCategory,
         String eventLocation,
-        EventCategory eventCategory
+        int eventAttendance
+
 ) {
 }
