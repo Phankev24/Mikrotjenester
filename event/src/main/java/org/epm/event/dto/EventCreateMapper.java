@@ -17,9 +17,10 @@ public class EventCreateMapper {
 
         Event event = new Event();
         event.setEventName(eventCreateDto.eventName());
-        event.setVendorId(eventCreateDto.vendorId());
+        event.setExternalVendorId(eventCreateDto.vendorId());
         event.setEventDescription(eventCreateDto.eventDescription());
         event.setEventAttendance(eventCreateDto.eventAttendance());
+        event.setEventLocation(eventCreateDto.eventLocation());
         event.setEventCategory(eventCreateDto.eventCategory());
 
         return event;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 
 @Configuration
-@Profile("test")
+@Profile("dev")
 public class Dataintializer {
     @Bean
     CommandLineRunner initDatabase(EventRepository eventRepository){
@@ -19,6 +19,7 @@ public class Dataintializer {
             event1.setEventName("Bowling med jobb");
             event1.setEventDescription("Bowling med kollegaer og masse morro");
             event1.setEventAttendance(10);
+            event1.setEventLocation("Bowling 1 - Torggata 16, 0181 OSLO");
             event1.setEventDateTime(LocalDateTime.now());
             event1.setEventCategory(EventCategory.SOCIAL);
 

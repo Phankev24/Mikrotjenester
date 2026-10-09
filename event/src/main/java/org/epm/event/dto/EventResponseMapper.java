@@ -9,12 +9,14 @@ public class EventResponseMapper {
         if(event == null) return null;
 
         return new EventResponseDto(
-                event.getEventId(),
+                event.getInternalEventId(),
                 event.getExternalEventId(),
-                event.getVendorId(),
+                event.getExternalUserId(),
+                event.getExternalVendorId(),
                 event.getEventName(),
                 event.getEventDescription(),
                 event.getEventAttendance(),
+                event.getEventLocation(),
                 event.getEventCategory()
         );
     }

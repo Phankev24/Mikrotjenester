@@ -8,9 +8,11 @@ import java.util.UUID;
 public record EventResponseDto(
         Long eventId,
         UUID externalEventId,
-        UUID vendorId,
+        UUID externalUserId,
+        UUID externalVendorId,
         String eventName,
         String eventDescription,
         int eventAttendance,
+        String eventLocation,
         EventCategory eventCategory
 ){}

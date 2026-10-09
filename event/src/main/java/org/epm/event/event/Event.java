@@ -17,28 +17,36 @@ import java.util.UUID;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long eventId;
+    private Long internalEventId;
 
     @Column(nullable = false, unique = true, updatable = false)
     private UUID externalEventId;
 
-    private UUID vendorId;
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID externalUserId;
+
+    @Column(nullable = true, unique = true, updatable = true)
+    private UUID externalVendorId;
+
     private String eventName;
     private String eventDescription;
     private int eventAttendance;
+    private String eventLocation;
     private LocalDateTime eventDateTime;
 
     @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
 
 
-    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, int eventAttendance, String eventDescription, String eventName, UUID vendorId, UUID externalEventId) {
+    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, String eventLocation, int eventAttendance, String eventDescription, String eventName, UUID externalVendorId, UUID externalUserId, UUID externalEventId) {
         this.eventCategory = eventCategory;
         this.eventDateTime = eventDateTime;
+        this.eventLocation = eventLocation;
         this.eventAttendance = eventAttendance;
         this.eventDescription = eventDescription;
         this.eventName = eventName;
-        this.vendorId = vendorId;
+        this.externalVendorId = externalVendorId;
+        this.externalUserId = externalUserId;
         this.externalEventId = externalEventId;
     }
 
@@ -46,6 +54,9 @@ public class Event {
     public void generateUuid(){
         if (this.externalEventId == null){
             this.externalEventId = UUID.randomUUID();
+        }
+        if(this.externalUserId == null){
+            this.externalUserId = UUID.randomUUID();
         }
     }
 }

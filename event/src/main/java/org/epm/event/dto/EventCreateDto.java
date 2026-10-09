@@ -10,6 +10,7 @@ public record EventCreateDto(
         UUID vendorId,
         String eventDescription,
         int eventAttendance,
+        String eventLocation,
         EventCategory eventCategory
 ) {
 }
