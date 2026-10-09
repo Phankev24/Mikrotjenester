@@ -8,6 +8,7 @@ public record EventUpdateDto(
         String eventName,
         String eventDescription,
         int eventAttendance,
+        String eventLocation,
         LocalDateTime eventDateTime,
         EventCategory eventCategory
 ) {

@@ -1,14 +1,8 @@
 package org.epm.event.dto;
 
-import org.epm.event.enumeration.EventCategory;
 
-import java.util.UUID;
-
+// En dto som skal create all info om event koblet med vendor
+// In progress med hvordan arcitecture will work
 public record EventVendorCreateDto(
-        String eventName,
-        String eventDescription,
-        UUID vendorId,
-        int eventAttendance,
-        EventCategory eventCategory
-) {
-}
+
+) {}

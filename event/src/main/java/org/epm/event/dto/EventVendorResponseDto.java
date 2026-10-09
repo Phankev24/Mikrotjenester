@@ -1,21 +1,8 @@
 package org.epm.event.dto;
 
-import org.epm.event.enumeration.EventCategory;
-import org.epm.event.enumeration.VendorType;
 
-import java.util.UUID;
-
+// En Dto som skal return all info om Event koblet med vendor
+// Work in progress, figurer out architecture still på hvordan det vil utføres
 public record EventVendorResponseDto(
-        Long eventId,
-        UUID vendorId,
-        String eventName,
-        String eventDescription,
-        int eventAttendance,
-        EventCategory eventCategory,
-        VendorType type,
-        String companyName,
-        String servicesDescription,
-        String website,
-        String phone
-) {
-}
+
+) {}
