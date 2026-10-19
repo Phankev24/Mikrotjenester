@@ -10,7 +10,7 @@ public class VendorResponseMapper {
         if (vendor == null) return null;
 
         return new VendorResponse(
-                vendor.getId(),
+                vendor.getExternalId(),
                 vendor.getEventId(),
                 vendor.getType(),
                 vendor.getCompanyName(),

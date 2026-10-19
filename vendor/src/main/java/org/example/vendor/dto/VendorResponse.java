@@ -4,7 +4,7 @@ import org.example.vendor.vendor.VendorType;
 import java.util.UUID;
 
 public record VendorResponse(
-        Long id,
+        UUID externalId,
         UUID eventId,
         VendorType type,
         String companyName,

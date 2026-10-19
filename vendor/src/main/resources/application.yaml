@@ -31,3 +31,7 @@ server:
 event:
   service:
     url: http://localhost:8080   # PLASSHOLDER, bytt til event-tjenestens faktiske port
+
+user:
+  service:
+    url: http://localhost:8081   # PLASSHOLDER

@@ -1,27 +1,26 @@
 package org.example.vendor.dto;
 
+import org.example.vendor.client.EventPayload;
 import org.example.vendor.vendor.Vendor;
 import org.example.vendor.vendor.VendorType;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
+/** All DTO -> entity/payload conversion. Services never see API DTOs. */
 @Component
 public class VendorRequestMapper {
 
-    /** POST: fyller inn default-verdier der felter mangler (request kan være null/tom). */
-    public Vendor toEntity(UUID eventId, VendorRequest request) {
+    /** POST: missing fields get defaults, so an empty body works (handy in Swagger). */
+    public Vendor toEntity(VendorRequest request) {
+        VendorRequest r = request != null ? request : new VendorRequest(null, null, null, null, null);
         return new Vendor(
-                eventId,
-                request != null && request.type() != null ? request.type() : VendorType.CATERER,
-                request != null && request.companyName() != null ? request.companyName() : "Default Company",
-                request != null && request.servicesDescription() != null ? request.servicesDescription() : "Default Description",
-                request != null && request.website() != null ? request.website() : "https://default.vendor",
-                request != null && request.phone() != null ? request.phone() : "+47 000 000"
-        );
+                orDefault(r.type(), VendorType.CATERER),
+                orDefault(r.companyName(), "Default Company"),
+                orDefault(r.servicesDescription(), "Default Description"),
+                orDefault(r.website(), "https://default.vendor"),
+                orDefault(r.phone(), "+47 000 000"));
     }
 
-    /** PATCH: ingen defaults. Felter som ikke er sendt inn blir null. */
+    /** PATCH: no defaults. null means "do not change", which the service relies on. */
     public Vendor toPatchEntity(VendorRequest request) {
         Vendor patch = new Vendor();
         if (request == null) return patch;
@@ -31,5 +30,24 @@ public class VendorRequestMapper {
         patch.setWebsite(request.website());
         patch.setPhone(request.phone());
         return patch;
+    }
+
+    /** Body for creating an event. The vendor id is added later by the service. */
+    public EventPayload toEventPayload(VendorEventRequest r) {
+        if (r == null) {
+            return new EventPayload(null, null, null, null, null, 0);
+        }
+        return new EventPayload(
+                null,
+                r.name(),
+                r.description(),
+                null,
+                r.location(),
+                r.attendance() != null ? r.attendance() : 0
+        );
+    }
+
+    private static <T> T orDefault(T value, T fallback) {
+        return value != null ? value : fallback;
     }
 }
