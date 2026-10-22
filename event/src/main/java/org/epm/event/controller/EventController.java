@@ -1,7 +1,11 @@
 package org.epm.event.controller;
 
+import org.apache.http.protocol.ResponseServer;
+import org.epm.event.dto.event.EventCreateDto;
 import org.epm.event.dto.event.EventResponseDto;
+import org.epm.event.event.Event;
 import org.epm.event.service.EventService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,4 +30,41 @@ public class EventController {
         return ResponseEntity.ok(eventService.getEventsByEventUUID(externalEventId));
     }
 
+    @PostMapping("/user/{externalUserId}")
+    public ResponseEntity<EventResponseDto> createUserEvent(@PathVariable UUID externalUserId, @RequestBody EventCreateDto eventCreateDto){
+        Event event = eventService.createEvent(eventCreateDto, externalUserId, null);
+        EventResponseDto eventResponseDto = new EventResponseDto(
+                event.getInternalEventId(),
+                event.getExternalEventId(),
+                event.getExternalUserId(),
+                event.getExternalVendorId(),
+                event.getEventOrganizer(),
+                event.getEventName(),
+                event.getEventDescription(),
+                event.getEventCategory(),
+                event.getEventLocation(),
+                event.getEventDateTime(),
+                event.getEventAttendance()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseDto);
+    }
+
+    @PostMapping("/vendor/{externalVendorId}")
+    public ResponseEntity<EventResponseDto> createVendorEvent(@PathVariable UUID externalVendorId ,@RequestBody EventCreateDto eventCreateDto) {
+        Event event = eventService.createEvent(eventCreateDto, null, externalVendorId);
+        EventResponseDto eventResponseDto = new EventResponseDto(
+                event.getInternalEventId(),
+                event.getExternalEventId(),
+                event.getExternalUserId(),
+                event.getExternalVendorId(),
+                event.getEventOrganizer(),
+                event.getEventName(),
+                event.getEventDescription(),
+                event.getEventCategory(),
+                event.getEventLocation(),
+                event.getEventDateTime(),
+                event.getEventAttendance()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseDto);
+    }
 }

@@ -3,9 +3,7 @@ package org.epm.event.service;
 import org.epm.event.dto.event.*;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,22 +35,8 @@ public class EventService {
                 .toList();
     }
 
-    public EventResponseDto createEvent(EventCreateDto eventCreateDto){
-        Event eventEntity = eventCreateMapper.toEntity(eventCreateDto);
-        Event savedEvent = eventRepository.save(eventEntity);
-        return eventResponseMapper.toDTO(savedEvent);
-    }
-
-    public EventResponseDto updateEvent(Long id, EventUpdateDto eventUpdateDto){
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with this id: " + id));
-        Event updatedEvent = eventRepository.save(event);
-        return eventResponseMapper.toDTO(updatedEvent);
-    }
-
-    public void deleteEvent(Long id){
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found: " + id));
-        eventRepository.delete(event);
+    public Event createEvent(EventCreateDto eventCreateDto, UUID externalUserId, UUID externalVendorId){
+        Event event = eventCreateMapper.toEntity(eventCreateDto, externalUserId, externalVendorId);
+        return eventRepository.save(event);
     }
 }

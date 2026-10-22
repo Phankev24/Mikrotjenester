@@ -53,18 +53,18 @@ public class Event {
 
     @PrePersist
     public void generateUuid(){
-        if(this.externalEventId == null){
-            this.externalEventId = UUID.randomUUID();
-        }
-        if(this.externalUserId == null){
-            this.externalUserId = UUID.randomUUID();
-        }
-        //TODO: Auto generates datetime now but changes later for self input. cannot be null
-        if(this.eventDateTime == null){
-            this.eventDateTime = LocalDateTime.now();
-        }
-        if(this.externalVendorId == null){
-            this.externalVendorId = UUID.randomUUID();
-        }
+//        if(this.externalEventId == null){
+//            this.externalEventId = UUID.randomUUID();
+//        }
+//        if(this.externalUserId == null){
+//            this.externalUserId = UUID.randomUUID();
+//        }
+//        //TODO: Auto generates datetime now but changes later for self input. cannot be null
+//        if(this.eventDateTime == null){
+//            this.eventDateTime = LocalDateTime.now();
+//        }
+//        if(this.externalVendorId == null){
+//            this.externalVendorId = UUID.randomUUID();
+//        }
     }
 }
