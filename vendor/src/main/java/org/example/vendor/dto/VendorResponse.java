@@ -1,14 +1,14 @@
 package org.example.vendor.dto;
 
-import org.example.vendor.vendor.VendorType;
 import java.util.UUID;
 
+/** What the API returns. No password and no internal id. eventId is null when not in an event. */
 public record VendorResponse(
         UUID externalId,
         UUID eventId,
-        VendorType type,
         String companyName,
-        String servicesDescription,
+        String email,
+        String phone,
         String website,
-        String phone
+        String description
 ) {}

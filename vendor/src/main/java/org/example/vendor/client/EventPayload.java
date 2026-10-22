@@ -12,15 +12,15 @@ public record EventPayload(
         String eventDescription,
         String eventCategory,
         String eventLocation,
-        int eventAttendance) {
-
-    /** A vendor creates an event knowing only its own id: missing fields are filled from the vendor. */
+        int eventAttendance
+) {
+    /** A vendor can create an event knowing only its own id: gaps are filled from the vendor. */
     public EventPayload withDefaults(UUID vendorId, String vendorName) {
         return new EventPayload(
                 vendorId,
                 eventName != null ? eventName : "Event by " + vendorName,
                 eventDescription != null ? eventDescription : "Created by vendor " + vendorName,
-                eventCategory != null ? eventCategory : "SOCIAL",   // SOCIAL is the default category
+                eventCategory != null ? eventCategory : "SOCIAL",   // the only category I have seen
                 eventLocation != null ? eventLocation : "To be decided",
                 eventAttendance);
     }

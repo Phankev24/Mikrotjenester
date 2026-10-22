@@ -11,7 +11,14 @@ import java.util.UUID;
 
 /**
  * Vendor's contract with the event service. Lives under /internal, which the
- * gateway must NOT route, so only other services can call it.
+ * gateway must NOT route, so only other services can reach it.
+ *
+ * Typical sequence from the event side:
+ *  1. event creates its own event
+ *  2. event calls PATCH  /internal/vendors/{vendorId}/event/{eventId}  (place vendor)
+ *  3. event calls GET    /internal/vendors/event/{eventId}             (list vendors)
+ *  4. event calls DELETE /internal/vendors/{vendorId}/event            (remove one vendor)
+ *  5. event calls DELETE /internal/vendors/event/{eventId}             (event deleted)
  */
 @RestController
 @RequestMapping("/internal/vendors")
@@ -31,19 +38,23 @@ public class VendorCommunicationController {
         return vendorService.getVendorsByEvent(eventId).stream().map(responseMapper::toResponse).toList();
     }
 
-    /** Event puts a vendor into an event. PUT because repeating it gives the same result. */
-    @PutMapping("/{externalId}/event/{eventId}")
+    /**
+     * FLOW place a vendor in an existing event. PATCH because only the vendor's eventId
+     * changes. Vendor verifies the event first (404 unknown event/vendor, 503 event down).
+     * Call it after the event is committed, or the check will not find it.
+     */
+    @PatchMapping("/{externalId}/event/{eventId}")
     public VendorResponse assignToEvent(@PathVariable UUID externalId, @PathVariable UUID eventId) {
         return responseMapper.toResponse(vendorService.assignToEvent(externalId, eventId));
     }
 
-    /** Event removes one vendor from itself. The vendor is kept. */
+    /** FLOW remove one vendor from its event. The vendor itself is kept. */
     @DeleteMapping("/{externalId}/event")
     public VendorResponse unassignFromEvent(@PathVariable UUID externalId) {
         return responseMapper.toResponse(vendorService.unassignFromEvent(externalId));
     }
 
-    /** Event was deleted: its vendors are unlinked, not deleted. */
+    /** FLOW event deleted: all its vendors are unlinked (not deleted). 204 even if there were none. */
     @DeleteMapping("/event/{eventId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eventDeleted(@PathVariable UUID eventId) {

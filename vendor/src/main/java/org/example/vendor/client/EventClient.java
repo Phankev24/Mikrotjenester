@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Vendor's only outgoing calls, both to the event service (confirmed against its controller).
- * - Event's GET /api/event/{id} takes its internal Long id, which vendor must never use.
- * - Vendor and event share the EXTERNAL UUID (externalEventId) instead.
- * - All knowledge of event's API lives here, so a change in event touches one file.
+ * Vendor's only outgoing calls, both to the event service.
+ * Event's GET /api/event/{id} takes its internal Long id, which vendor must never use.
+ * Vendor and event share the EXTERNAL UUID (externalEventId) instead.
+ * All knowledge of event's API lives here, so a change in event touches one file.
  */
 @Component
 public class EventClient {
@@ -75,5 +75,5 @@ public class EventClient {
 
     /** Only the external id is read from event's EventResponseDto; other fields are ignored. */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record EventRef(UUID externalEventId) {}
+    record EventRef(UUID externalEventId) {}
 }

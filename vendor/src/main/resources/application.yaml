@@ -1,6 +1,6 @@
 spring:
   application:
-    name: vendor
+    name: vendor                     # Name Consul and other services use (lb://vendor)
 
   config:
     import: "optional:consul:"
@@ -11,7 +11,7 @@ spring:
       port: 8500
 
   flyway:
-    enabled: false
+    enabled: false                   # Off while the Flyway/PostgreSQL version issue is open
 
   datasource:
     url: jdbc:postgresql://localhost:5434/vendorPlanerManager
@@ -21,17 +21,19 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: update               # Hibernate builds the table. Switch to "validate" once Flyway owns the schema
+
 server:
   port: 8082
+  # error:
+  #   include-message: always       # Dev only: shows "Vendor not found" etc. in error responses
 
 event:
   service:
-    url: http://localhost:8080   # PLASSHOLDER, bytt til event-tjenestens faktiske port
+    url: http://localhost:8080       # Event service's real port (confirmed from its logs)
 
-user:
-  service:
-    url: http://localhost:8081   # PLASSHOLDER
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"       # Consul's health check calls /actuator/health

@@ -1,0 +1,17 @@
+# Activated with the "dev" profile. Replaces Postgres with in-memory H2.
+spring:
+  datasource:
+    url: jdbc:h2:mem:vendordb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # schema built from the entity, discarded on shutdown
+  h2:
+    console:
+      enabled: true
+
+
+
+      # $env:SPRING_PROFILES_ACTIVE="dev"; .\mvnw spring-boot:run

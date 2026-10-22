@@ -9,7 +9,11 @@ import java.util.UUID;
 
 public interface VendorRepo extends JpaRepository<Vendor, Long> {
 
+    // Vendors placed in one event. Empty list = event without vendors.
     List<Vendor> findByEventId(UUID eventId);
 
+    // Lookup by public id. Callers never use the internal Long id.
     Optional<Vendor> findByExternalId(UUID externalId);
+
+    boolean existsByEmail(String email);
 }

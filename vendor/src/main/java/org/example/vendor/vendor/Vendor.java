@@ -8,7 +8,9 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-/** Vendor entity. Knows only an eventId, never a user (User -> Event -> Vendor). */
+/**
+ * Vendor entity. Knows only an eventId, never a user (User -> Event -> Vendor).
+ */
 @Entity
 @Getter
 @Setter
@@ -27,27 +29,38 @@ public class Vendor {
     @Setter(AccessLevel.NONE)
     private UUID externalId;
 
-    // Event in the event service. null = not linked. A plain value, not a foreign key.
+    // Not unique: two companies can share a name.
+    @Column(nullable = false)
+    private String companyName;
+
+    // BCrypt hash, never the plain password. Never put it in a response or a log.
+    @Column(nullable = false)
+    private String password;
+
+    // Unique, so it can serve as the login id later.
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String phone;
+    private String website;
+
+    @Column(length = 1000)
+    private String description;
+
+    // Event this vendor is placed in (event's external UUID). null = not in an event.
     private UUID eventId;
 
-    @Enumerated(EnumType.STRING)
-    private VendorType type;
-
-    private String companyName;
-    private String servicesDescription;
-    private String website;
-    private String phone;
-
-    // A new vendor starts without an event; linking happens later.
-    public Vendor(VendorType type, String companyName, String servicesDescription,
-                  String website, String phone) {
-        this.type = type;
+    public Vendor(String companyName, String password, String email,
+                  String phone, String website, String description) {
         this.companyName = companyName;
-        this.servicesDescription = servicesDescription;
-        this.website = website;
+        this.password = password;
+        this.email = email;
         this.phone = phone;
+        this.website = website;
+        this.description = description;
     }
 
+    // Runs before the first INSERT, so every vendor gets a public id.
     @PrePersist
     void generateExternalId() {
         if (externalId == null) externalId = UUID.randomUUID();
