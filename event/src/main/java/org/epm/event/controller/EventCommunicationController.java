@@ -1,7 +1,7 @@
 package org.epm.event.controller;
 
 import org.epm.event.client.EventClient;
-import org.epm.event.dto.VendorResponseDto;
+import org.epm.event.dto.vendor.VendorResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,4 +1,4 @@
-package org.epm.event.dto;
+package org.epm.event.dto.event;
 
 import org.epm.event.event.Event;
 import org.springframework.stereotype.Component;
@@ -13,6 +13,7 @@ public class EventResponseMapper {
                 event.getExternalEventId(),
                 event.getExternalUserId(),
                 event.getExternalVendorId(),
+                event.getEventOrganizer(),
                 event.getEventName(),
                 event.getEventDescription(),
                 event.getEventCategory(),

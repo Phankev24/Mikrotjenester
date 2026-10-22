@@ -1,8 +1,8 @@
 package org.epm.event.controller;
 
-import org.epm.event.dto.EventCreateDto;
-import org.epm.event.dto.EventResponseDto;
-import org.epm.event.dto.EventUpdateDto;
+import org.epm.event.dto.event.EventCreateDto;
+import org.epm.event.dto.event.EventResponseDto;
+import org.epm.event.dto.event.EventUpdateDto;
 import org.epm.event.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

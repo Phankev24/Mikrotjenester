@@ -26,12 +26,15 @@ public class Event {
     @Column(nullable = false, unique = true, updatable = false)
     private UUID externalUserId;
 
-    @Column(nullable = true, unique = true, updatable = true)
+    @Column(nullable = true, unique = true)
     private UUID externalVendorId;
+
+    @Column(nullable = false)
+    private String eventOrganizer;
 
     private String eventName;
     private String eventDescription;
-    private int eventAttendance;
+    private Integer eventAttendance;
     private String eventLocation;
     private LocalDateTime eventDateTime;
 
@@ -39,13 +42,14 @@ public class Event {
     private EventCategory eventCategory;
 
 
-    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, String eventLocation, int eventAttendance, String eventDescription, String eventName, UUID externalVendorId, UUID externalUserId, UUID externalEventId) {
+    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, String eventLocation, Integer eventAttendance, String eventDescription, String eventName, String eventOrganizer, UUID externalVendorId, UUID externalUserId, UUID externalEventId) {
         this.eventCategory = eventCategory;
         this.eventDateTime = eventDateTime;
         this.eventLocation = eventLocation;
         this.eventAttendance = eventAttendance;
         this.eventDescription = eventDescription;
         this.eventName = eventName;
+        this.eventOrganizer = eventOrganizer;
         this.externalVendorId = externalVendorId;
         this.externalUserId = externalUserId;
         this.externalEventId = externalEventId;

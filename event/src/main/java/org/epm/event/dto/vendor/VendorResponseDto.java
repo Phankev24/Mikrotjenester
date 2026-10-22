@@ -1,4 +1,4 @@
-package org.epm.event.dto;
+package org.epm.event.dto.vendor;
 
 import org.epm.event.enumeration.VendorType;
 

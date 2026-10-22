@@ -1,6 +1,6 @@
 package org.epm.event.client;
 
-import org.epm.event.dto.VendorResponseDto;
+import org.epm.event.dto.vendor.VendorResponseDto;
 import java.util.List;
 import java.util.UUID;
 

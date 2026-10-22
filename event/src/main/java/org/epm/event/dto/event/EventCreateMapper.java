@@ -1,4 +1,4 @@
-package org.epm.event.dto;
+package org.epm.event.dto.event;
 
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
@@ -16,7 +16,6 @@ public class EventCreateMapper {
         if(eventCreateDto == null) return null;
 
         Event event = new Event();
-        event.setExternalVendorId(eventCreateDto.externalVendorId());
         event.setEventName(eventCreateDto.eventName());
         event.setEventDescription(eventCreateDto.eventDescription());
         event.setEventCategory(eventCreateDto.eventCategory());
