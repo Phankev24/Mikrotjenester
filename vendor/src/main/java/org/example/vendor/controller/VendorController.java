@@ -10,12 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Public API (/api/vendors/**, reached through the gateway).
- * Maps DTO <-> entity and delegates to the service.
- * Placing a vendor in an existing event is NOT here: event does that through
- * VendorCommunicationController.
- */
+/** Public API (/api/vendors/**, via gateway). Maps DTO <-> entity and delegates to the service. */
 @RestController
 @RequestMapping("/api/vendors")
 public class VendorController {
@@ -32,7 +27,6 @@ public class VendorController {
         this.responseMapper = responseMapper;
     }
 
-    /** FLOW create vendor: body is required and validated. Starts without an event. */
     @PostMapping
     public ResponseEntity<VendorResponse> createVendor(@Valid @RequestBody VendorRequest request) {
         var saved = vendorService.createVendor(requestMapper.toEntity(request));
@@ -44,26 +38,11 @@ public class VendorController {
         return vendorService.getAllVendors().stream().map(responseMapper::toResponse).toList();
     }
 
-    // The path uses the public externalId, never the internal database id.
     @GetMapping("/{externalId}")
     public VendorResponse getVendor(@PathVariable UUID externalId) {
         return responseMapper.toResponse(vendorService.getVendor(externalId));
     }
 
-    /**
-     * FLOW vendor creates event: POST /api/vendors/{externalId}/events
-     * Only the vendor id is required (body optional). The event service creates the
-     * event, and the response shows the vendor with its new eventId.
-     * 409 if the vendor already has an event, 404 if the vendor does not exist.
-     */
-    @PostMapping("/{externalId}/events")
-    public ResponseEntity<VendorResponse> createEvent(@PathVariable UUID externalId,
-                                                      @RequestBody(required = false) VendorEventRequest request) {
-        var updated = vendorService.createEventForVendor(externalId, requestMapper.toEventPayload(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toResponse(updated));
-    }
-
-    /** PATCH: only the sent fields change. */
     @PatchMapping("/{externalId}")
     public VendorResponse updateVendor(@PathVariable UUID externalId,
                                        @Valid @RequestBody VendorPatchRequest request) {
@@ -75,5 +54,23 @@ public class VendorController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVendor(@PathVariable UUID externalId) {
         vendorService.deleteVendor(externalId);
+    }
+
+    /**
+     * FLOW vendor posts an event: POST /api/vendors/{externalId}/events
+     * Only the vendor id is needed in the URL. The event service creates the event with
+     * this vendor as organizer. 404 if the vendor is unknown, 502/503 if event fails.
+     */
+    @PostMapping("/{externalId}/events")
+    public ResponseEntity<VendorEventResponse> postEvent(@PathVariable UUID externalId,
+                                                         @Valid @RequestBody VendorEventRequest request) {
+        var created = vendorService.postEvent(externalId, requestMapper.toEventPayload(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toEventResponse(created));
+    }
+
+    /** Events this vendor has posted. Empty list = none. */
+    @GetMapping("/{externalId}/events")
+    public List<VendorEventResponse> getEvents(@PathVariable UUID externalId) {
+        return vendorService.getEvents(externalId).stream().map(responseMapper::toEventResponse).toList();
     }
 }

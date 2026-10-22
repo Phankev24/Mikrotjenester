@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class VendorRequestMapper {
 
-    /** POST: the password is still plain here; VendorService hashes it before saving. */
+    /** POST: the password is stored as sent. */
     public Vendor toEntity(VendorRequest r) {
         return new Vendor(r.companyName(), r.password(), r.email(),
                 r.phone(), r.website(), r.description());
     }
 
-    /** PATCH: no defaults. null means "not sent", and the service skips those fields. */
+    /** PATCH: null means "not sent", and the service skips those fields. */
     public Vendor toPatchEntity(VendorPatchRequest r) {
         Vendor patch = new Vendor();
         patch.setCompanyName(r.companyName());
@@ -26,10 +26,9 @@ public class VendorRequestMapper {
         return patch;
     }
 
-    /** Body for creating an event. The vendor id and defaults are added by the service. */
+    /** Body sent to event's POST /api/event/vendor/{id}. */
     public EventPayload toEventPayload(VendorEventRequest r) {
-        if (r == null) return new EventPayload(null, null, null, null, null, 0);
-        return new EventPayload(null, r.name(), r.description(), null, r.location(),
-                r.attendance() != null ? r.attendance() : 0);
+        return new EventPayload(r.eventName(), r.eventDescription(),
+                r.eventCategory(), r.eventLocation(), r.eventAttendance());
     }
 }
