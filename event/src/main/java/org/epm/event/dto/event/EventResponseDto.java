@@ -11,7 +11,7 @@ public record EventResponseDto(
         UUID externalEventId,
         UUID externalUserId,
         UUID externalVendorId,
-        String eventOrganizer,
+        UUID eventOrganizer,
         String eventName,
         String eventDescription,
         EventCategory eventCategory,

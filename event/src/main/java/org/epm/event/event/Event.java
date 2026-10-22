@@ -23,14 +23,11 @@ public class Event {
     @Column(nullable = false, unique = true, updatable = false)
     private UUID externalEventId;
 
-    @Column(nullable = false, unique = true, updatable = false)
     private UUID externalUserId;
-
-    @Column(nullable = true, unique = true)
     private UUID externalVendorId;
 
     @Column(nullable = false)
-    private String eventOrganizer;
+    private UUID eventOrganizer;
 
     private String eventName;
     private String eventDescription;
@@ -41,8 +38,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventCategory eventCategory;
 
-
-    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, String eventLocation, Integer eventAttendance, String eventDescription, String eventName, String eventOrganizer, UUID externalVendorId, UUID externalUserId, UUID externalEventId) {
+    public Event(EventCategory eventCategory, LocalDateTime eventDateTime, String eventLocation, Integer eventAttendance, String eventDescription, String eventName, UUID eventOrganizer, UUID externalVendorId, UUID externalUserId, UUID externalEventId) {
         this.eventCategory = eventCategory;
         this.eventDateTime = eventDateTime;
         this.eventLocation = eventLocation;
@@ -57,7 +53,7 @@ public class Event {
 
     @PrePersist
     public void generateUuid(){
-        if (this.externalEventId == null){
+        if(this.externalEventId == null){
             this.externalEventId = UUID.randomUUID();
         }
         if(this.externalUserId == null){
@@ -66,6 +62,9 @@ public class Event {
         //TODO: Auto generates datetime now but changes later for self input. cannot be null
         if(this.eventDateTime == null){
             this.eventDateTime = LocalDateTime.now();
+        }
+        if(this.externalVendorId == null){
+            this.externalVendorId = UUID.randomUUID();
         }
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -29,10 +30,11 @@ public class EventService {
                 .toList();
     }
 
-    public EventResponseDto getEventById(Long id){
-        return eventRepository.findById(id)
+    public List<EventResponseDto> getEventsByEventUUID(UUID externalEventId){
+        return eventRepository.findByExternalEventId(externalEventId)
+                .stream()
                 .map(eventResponseMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("Event not found with this id" + id)) ;
+                .toList();
     }
 
     public EventResponseDto createEvent(EventCreateDto eventCreateDto){

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Configuration
@@ -16,6 +17,7 @@ public class Dataintializer {
     CommandLineRunner initDatabase(EventRepository eventRepository){
         return args -> {
             Event event1 = new Event();
+            event1.setEventOrganizer(UUID.fromString("a13a11e0-72d2-4dd0-8a5f-aa78858fb87c"));
             event1.setEventName("Bowling med jobb");
             event1.setEventDescription("Bowling med kollegaer og masse morro");
             event1.setEventAttendance(10);
