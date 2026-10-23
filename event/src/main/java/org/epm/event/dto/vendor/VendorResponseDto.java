@@ -2,11 +2,15 @@ package org.epm.event.dto.vendor;
 
 import org.epm.event.enumeration.VendorType;
 
+import java.util.UUID;
+
 public record VendorResponseDto(
-        VendorType type,
+        UUID externalId,
+        UUID eventId,
         String companyName,
-        String servicesDescription,
+        String email,
+        String phone,
         String website,
-        String phone
+        String description
 ) {
 }

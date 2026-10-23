@@ -1,6 +1,5 @@
 package org.epm.event.controller;
 
-import org.apache.http.protocol.ResponseServer;
 import org.epm.event.dto.event.EventCreateDto;
 import org.epm.event.dto.event.EventResponseDto;
 import org.epm.event.event.Event;

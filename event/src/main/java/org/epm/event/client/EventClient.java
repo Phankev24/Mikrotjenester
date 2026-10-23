@@ -20,7 +20,7 @@ public class EventClient {
         this.restTemplate = builder.build();
     }
 
-    public List<VendorResponseDto> getAllVendors(){
+    public List<VendorResponseDto> getVendors(){
         ResponseEntity<List<VendorResponseDto>> response = restTemplate.exchange(
                 vendorServiceUrl,
                 HttpMethod.GET,
@@ -30,17 +30,5 @@ public class EventClient {
         return response.getBody();
     }
 
-
-
-    public List<VendorResponseDto> getVendorsByVendorId(UUID vendorId){
-        String url = vendorServiceUrl + "/vendor/" + vendorId;
-        ResponseEntity<List<VendorResponseDto>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<VendorResponseDto>>() {}
-        );
-        return response.getBody();
-    }
 
 }
