@@ -31,4 +31,16 @@ public class EventClient {
     }
 
 
+    public VendorResponseDto getVendorByExternalId(UUID externalId){
+        String url = vendorServiceUrl + "/" + externalId;
+        ResponseEntity<VendorResponseDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                VendorResponseDto.class
+        );
+        return response.getBody();
+    }
+
+
 }

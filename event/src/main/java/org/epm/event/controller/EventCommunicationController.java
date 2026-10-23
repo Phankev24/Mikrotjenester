@@ -9,6 +9,7 @@ import org.epm.event.dto.vendor.VendorResponseDto;
 import org.epm.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,5 +57,13 @@ public class EventCommunicationController {
                 .toList();
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{externalId}/vendorEvent")
+    public ResponseEntity<EventVendorResponseDto> getVendorWithEvents(@PathVariable UUID externalId){
+        VendorResponseDto vendorDto = eventClient.getVendorByExternalId(externalId);
+        List<EventResponseDto> events = eventService.getEventByVendorId(externalId);
+
+        return ResponseEntity.ok(new EventVendorResponseDto(vendorDto, events));
     }
 }

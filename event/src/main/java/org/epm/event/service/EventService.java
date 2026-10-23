@@ -35,6 +35,13 @@ public class EventService {
                 .toList();
     }
 
+    public List<EventResponseDto> getEventByVendorId(UUID externalId){
+        return eventRepository.findByExternalVendorId(externalId)
+                .stream()
+                .map(eventResponseMapper::toDTO)
+                .toList();
+    }
+
     public Event createEvent(EventCreateDto eventCreateDto, UUID externalUserId, UUID externalVendorId){
         Event event = eventCreateMapper.toEntity(eventCreateDto, externalUserId, externalVendorId);
         return eventRepository.save(event);

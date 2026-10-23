@@ -6,4 +6,5 @@ import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event>findByExternalEventId(UUID externalEventId);
+    List<Event> findByExternalVendorId(UUID externalId);
 }
