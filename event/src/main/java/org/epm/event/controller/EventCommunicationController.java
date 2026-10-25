@@ -65,7 +65,7 @@ public class EventCommunicationController {
     @GetMapping("/{externalId}/vendorEvent")
     public ResponseEntity<EventVendorResponseDto> getVendorWithEvents(@PathVariable UUID externalId){
         VendorResponseDto vendorDto = eventClient.getVendorByExternalId(externalId);
-        List<EventResponseDto> events = eventService.getEventByVendorId(externalId);
+        List<EventResponseDto> events = eventService.getEventByVendorUUID(externalId);
 
         return ResponseEntity.ok(new EventVendorResponseDto(vendorDto, events));
     }
@@ -97,5 +97,14 @@ public class EventCommunicationController {
                 .toList();
 
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(description = "Gets ONE user and their events")
+    @GetMapping("/{externalUserId}/userEvent")
+    public ResponseEntity<EventUserResponseDto> getUserWithEvents(@PathVariable UUID externalUserId){
+        UserResponseDto userDto = eventClient.getUserByExternalId(externalUserId);
+        List<EventResponseDto> events = eventService.getEventByUserUUID(externalUserId);
+
+        return ResponseEntity.ok(new EventUserResponseDto(userDto, events));
     }
 }

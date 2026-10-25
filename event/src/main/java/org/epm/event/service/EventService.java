@@ -4,7 +4,6 @@ import org.epm.event.dto.event.*;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,8 +39,15 @@ public class EventService {
                 .toList();
     }
 
-    public List<EventResponseDto> getEventByVendorId(UUID externalId){
+    public List<EventResponseDto> getEventByVendorUUID(UUID externalId){
         return eventRepository.findByExternalVendorId(externalId)
+                .stream()
+                .map(eventResponseMapper::toDTO)
+                .toList();
+    }
+
+    public List<EventResponseDto> getEventByUserUUID(UUID externalUserId){
+        return eventRepository.findByExternalUserId(externalUserId)
                 .stream()
                 .map(eventResponseMapper::toDTO)
                 .toList();

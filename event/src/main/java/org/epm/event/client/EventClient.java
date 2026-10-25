@@ -32,7 +32,6 @@ public class EventClient {
         return response.getBody();
     }
 
-
     public VendorResponseDto getVendorByExternalId(UUID externalId){
         String url = vendorServiceUrl + "/" + externalId;
         ResponseEntity<VendorResponseDto> response = restTemplate.exchange(
@@ -55,8 +54,14 @@ public class EventClient {
         return response.getBody();
     }
 
-
-
-
-
+    public UserResponseDto getUserByExternalId(UUID externalUserId){
+        String url = userServiceUrl + "/external/" + externalUserId;
+        ResponseEntity<UserResponseDto> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                UserResponseDto.class
+        );
+        return response.getBody();
+    }
 }
