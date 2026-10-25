@@ -1,5 +1,6 @@
 package org.epm.event.client;
 
+import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class EventClient {
     private final RestTemplate restTemplate;
     private final String vendorServiceUrl = "http://localhost:8082/api/vendors";
+    private final String userServiceUrl = "http://localhost:8081/api/user";
 
     public EventClient(RestTemplateBuilder builder){
         this.restTemplate = builder.build();
@@ -38,6 +40,17 @@ public class EventClient {
                 HttpMethod.GET,
                 null,
                 VendorResponseDto.class
+        );
+        return response.getBody();
+    }
+
+
+    public List<UserResponseDto> getUsers(){
+        ResponseEntity<List<UserResponseDto>> response = restTemplate.exchange(
+                userServiceUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<UserResponseDto>>() {}
         );
         return response.getBody();
     }

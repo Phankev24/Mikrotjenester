@@ -1,6 +1,6 @@
-package org.epm.event.dto.event;
+package org.epm.event.dto.vendor;
 
-import org.epm.event.dto.vendor.VendorResponseDto;
+import org.epm.event.dto.event.EventResponseDto;
 
 import java.util.List;
 
