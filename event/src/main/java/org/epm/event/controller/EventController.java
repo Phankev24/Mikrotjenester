@@ -1,7 +1,10 @@
 package org.epm.event.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.epm.event.dto.event.EventCreateDto;
 import org.epm.event.dto.event.EventResponseDto;
+import org.epm.event.dto.event.EventUpdateDto;
+import org.epm.event.dto.event.EventUpdateMapper;
 import org.epm.event.event.Event;
 import org.epm.event.service.EventService;
 import org.springframework.http.HttpStatus;
@@ -65,5 +68,12 @@ public class EventController {
                 event.getEventAttendance()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseDto);
+    }
+
+    @Operation(description = "Updates Event Details, only updates event details. own user details update and vendor coming soon")
+    @PatchMapping("/{externalEventId}")
+    public ResponseEntity<EventResponseDto> updateEvent(@PathVariable UUID externalEventId, @RequestBody EventUpdateDto eventUpdateDto){
+        EventResponseDto updatedEvent = eventService.updateEvent(externalEventId, eventUpdateDto);
+        return ResponseEntity.ok(updatedEvent);
     }
 }

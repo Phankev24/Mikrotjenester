@@ -1,7 +1,6 @@
 package org.epm.event.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.models.annotations.OpenAPI30;
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.event.EventResponseDto;
 import org.epm.event.dto.event.EventVendorResponseDto;
