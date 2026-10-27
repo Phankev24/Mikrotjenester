@@ -1,6 +1,7 @@
 package org.epm.event.event;
 
 import org.epm.event.enumeration.EventCategory;
+import org.epm.event.repository.EventRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +40,7 @@ public class Dataintializer {
                     "Summer Picnic",
                     UUID.randomUUID(), // eventOrganizer
                     null, // externalVendorId (null for user-created event)
-                    UUID.randomUUID(), // externalUserId
+                    UUID.fromString("a7f3bf47-f373-4cdf-b81c-b0475305b7fe"), // externalUserId
                     UUID.randomUUID() // externalEventId
             );
 

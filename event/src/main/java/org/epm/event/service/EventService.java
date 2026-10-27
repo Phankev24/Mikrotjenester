@@ -2,7 +2,7 @@ package org.epm.event.service;
 
 import org.epm.event.dto.event.*;
 import org.epm.event.event.Event;
-import org.epm.event.event.EventRepository;
+import org.epm.event.repository.EventRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
