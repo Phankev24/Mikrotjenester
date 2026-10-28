@@ -14,4 +14,5 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
     int countByExternalEventId(UUID externalEventId);
 
     List<EventAttendance> findByExternalEventId(UUID externalEventId);
+    List<EventAttendance> findByExternalUserId(UUID externalUserId);
 }

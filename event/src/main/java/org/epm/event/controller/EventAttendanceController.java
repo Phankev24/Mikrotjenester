@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/event/{externalEventId}/attendances")
+@RequestMapping("/api/event/{externalEventId}/attend")
 public class EventAttendanceController {
     private final EventAttendanceService attendanceService;
 
@@ -18,16 +18,15 @@ public class EventAttendanceController {
         this.attendanceService = eventAttendanceService;
     }
 
-    @Operation(summary = "Register a user for an event")
+    @Operation(summary = "attendee (user) registers for an event")
     @PostMapping("/{externalUserId}")
-    public ResponseEntity<Void> registerAttendee(@PathVariable UUID externalEventId,
-                                                 @PathVariable UUID externalUserId) {
-        attendanceService.registerAttendee(externalEventId, externalUserId);
+    public ResponseEntity<Void> registerAttendee(@PathVariable UUID externalEventId, @PathVariable UUID externalUserId) {
+        attendanceService.registerAttendance(externalEventId, externalUserId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
-    @Operation(summary = "Get full attendee list and capacity information")
+    @Operation(summary = "Get list of users that are attending this event")
     @GetMapping
     public ResponseEntity<EventAttendanceResponseDto> getEventAttendees(@PathVariable UUID externalEventId) {
         return ResponseEntity.ok(attendanceService.getEventAttendees(externalEventId));

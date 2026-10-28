@@ -2,6 +2,8 @@ package org.epm.event.service;
 
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.eventAttendance.EventAttendanceResponseDto;
+import org.epm.event.dto.user.EventAttendeeOverviewDto;
+import org.epm.event.dto.user.EventOrganizerOverviewDto;
 import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventAttendance;
@@ -29,7 +31,7 @@ public class EventAttendanceService {
     }
 
     @Transactional
-    public void registerAttendee(UUID externalEventId, UUID externalUserId) {
+    public void registerAttendance(UUID externalEventId, UUID externalUserId) {
         UserResponseDto user = eventClient.getUserByExternalId(externalUserId);
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + externalUserId);
@@ -76,5 +78,34 @@ public class EventAttendanceService {
                 remainingCapacity,
                 attendees
         );
+    }
+
+    @Transactional(readOnly = true)
+    public EventAttendeeOverviewDto getAttendeeWithEvents(UUID externalUserId){
+        UserResponseDto user = eventClient.getUserByExternalId(externalUserId);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found" + externalUserId);
+        }
+
+        List<EventAttendanceResponseDto> joinedEvents = eventAttendanceRepository.findByExternalUserId(externalUserId)
+                .stream()
+                .map(eventAttendance -> getEventAttendees(eventAttendance.getExternalEventId()))
+                .toList();
+
+        return new EventAttendeeOverviewDto(user, joinedEvents);
+    }
+
+    @Transactional(readOnly = true)
+    public EventOrganizerOverviewDto getOrganizerWithCreatedEvents(UUID externalUserId){
+        UserResponseDto user = eventClient.getUserByExternalId(externalUserId);
+        if(user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + externalUserId);
+        }
+
+        List<EventAttendanceResponseDto> userEvents = eventRepository.findByEventOrganizer(externalUserId)
+                .stream()
+                .map(event -> getEventAttendees(event.getExternalEventId()))
+                .toList();
+        return new EventOrganizerOverviewDto(user, userEvents);
     }
 }

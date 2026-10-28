@@ -14,6 +14,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Optional<Event> findByExternalEventId(UUID externalEventId);
     List<Event> findByExternalUserId(UUID externalUserId);
     List<Event> findByExternalVendorId(UUID externalId);
+    List<Event> findByEventOrganizer(UUID eventOrganizer);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Event e WHERE e.externalEventId = :externalEventId")

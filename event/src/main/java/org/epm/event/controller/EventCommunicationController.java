@@ -3,10 +3,13 @@ package org.epm.event.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.event.EventResponseDto;
+import org.epm.event.dto.user.EventAttendeeOverviewDto;
+import org.epm.event.dto.user.EventOrganizerOverviewDto;
 import org.epm.event.dto.user.EventUserResponseDto;
 import org.epm.event.dto.vendor.EventVendorResponseDto;
 import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
+import org.epm.event.service.EventAttendanceService;
 import org.epm.event.service.EventService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,18 +29,14 @@ import java.util.stream.Collectors;
 public class EventCommunicationController {
     private final EventClient eventClient;
     private final EventService eventService;
+    private final EventAttendanceService eventAttendanceService;
 
-    public EventCommunicationController(EventClient eventClient, EventService eventService) {
+    public EventCommunicationController(EventClient eventClient, EventService eventService, EventAttendanceService eventAttendanceService) {
         this.eventClient = eventClient;
         this.eventService = eventService;
+        this.eventAttendanceService = eventAttendanceService;
     }
 
-    @Operation(description = "ONLY GETS VENDORS")
-    @GetMapping("/vendorsOnly")
-    public ResponseEntity<List<VendorResponseDto>> getVendors() {
-        List<VendorResponseDto> vendors = eventClient.getVendors();
-        return ResponseEntity.ok(vendors);
-    }
 
     @Operation(description = "Gets all vendors and their events")
     @GetMapping("/vendorsWithEvents")
@@ -70,14 +69,8 @@ public class EventCommunicationController {
         return ResponseEntity.ok(new EventVendorResponseDto(vendorDto, events));
     }
 
-    @Operation(description = "ONLY GETS USERS")
-    @GetMapping("/usersOnly")
-    public ResponseEntity<List<UserResponseDto>> getUsers(){
-        List<UserResponseDto> users = eventClient.getUsers();
-        return ResponseEntity.ok(users);
-    }
 
-    @Operation(description = "Gets all users and their events")
+    @Operation(description = "Gets all user and events")
     @GetMapping("/usersWithEvents")
     public ResponseEntity<List<EventUserResponseDto>> getAllUsersWithEvents(){
         List<UserResponseDto> allUsers = eventClient.getUsers();
@@ -99,12 +92,15 @@ public class EventCommunicationController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(description = "Gets ONE user and their events")
-    @GetMapping("/{externalUserId}/userEvent")
-    public ResponseEntity<EventUserResponseDto> getUserWithEvents(@PathVariable UUID externalUserId){
-        UserResponseDto userDto = eventClient.getUserByExternalId(externalUserId);
-        List<EventResponseDto> events = eventService.getEventByUserUUID(externalUserId);
+    @Operation(summary = "Get user & attending events", description = "Gets ONE user and all events they are registered to attend (with full user lists)")
+    @GetMapping("/{externalUserId}/attendingEvents")
+    public ResponseEntity<EventAttendeeOverviewDto> getUserWithAttendedEvents(@PathVariable UUID externalUserId) {
+        return ResponseEntity.ok(eventAttendanceService.getAttendeeWithEvents(externalUserId));
+    }
 
-        return ResponseEntity.ok(new EventUserResponseDto(userDto, events));
+    @Operation(summary = "Get organizer, event and attendees",description = "Gets ONE user, all events they created, and the list of attendees for each event")
+    @GetMapping("/{externalUserId}/organizedEvents")
+    public ResponseEntity<EventOrganizerOverviewDto> getEventWithUsersAndAttendees(@PathVariable UUID externalUserId) {
+        return ResponseEntity.ok(eventAttendanceService.getOrganizerWithCreatedEvents(externalUserId));
     }
 }
