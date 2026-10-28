@@ -18,6 +18,12 @@ public class EventAttendanceController {
         this.attendanceService = eventAttendanceService;
     }
 
+    @Operation(summary = "Get list of users that are attending this event")
+    @GetMapping
+    public ResponseEntity<EventAttendanceResponseDto> getEventAttendees(@PathVariable UUID externalEventId) {
+        return ResponseEntity.ok(attendanceService.getEventAttendees(externalEventId));
+    }
+
     @Operation(summary = "attendee (user) registers for an event")
     @PostMapping("/{externalUserId}")
     public ResponseEntity<Void> registerAttendee(@PathVariable UUID externalEventId, @PathVariable UUID externalUserId) {
@@ -25,10 +31,10 @@ public class EventAttendanceController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
-    @Operation(summary = "Get list of users that are attending this event")
-    @GetMapping
-    public ResponseEntity<EventAttendanceResponseDto> getEventAttendees(@PathVariable UUID externalEventId) {
-        return ResponseEntity.ok(attendanceService.getEventAttendees(externalEventId));
+    @Operation(summary = "remove user attendance", description = "Deletes user from attending an event")
+    @DeleteMapping("/{externalUserId}")
+    public ResponseEntity<Void> removeAttendee(@PathVariable UUID externalEventId, @PathVariable UUID externalUserId){
+        attendanceService.removeAttendance(externalEventId, externalUserId);
+        return ResponseEntity.noContent().build();
     }
 }

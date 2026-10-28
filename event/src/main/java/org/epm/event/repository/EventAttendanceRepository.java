@@ -5,14 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
     boolean existsByExternalEventIdAndExternalUserId(UUID externalEventId, UUID externalUserId);
-
     int countByExternalEventId(UUID externalEventId);
 
     List<EventAttendance> findByExternalEventId(UUID externalEventId);
     List<EventAttendance> findByExternalUserId(UUID externalUserId);
+    Optional<EventAttendance> findByExternalEventIdAndExternalUserId(UUID externalEventId, UUID externalUserId);
 }

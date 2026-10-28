@@ -108,4 +108,11 @@ public class EventAttendanceService {
                 .toList();
         return new EventOrganizerOverviewDto(user, userEvents);
     }
+
+    @Transactional
+    public void removeAttendance(UUID externalEventId, UUID externalUserId){
+        EventAttendance registration = eventAttendanceRepository.findByExternalEventIdAndExternalUserId(externalEventId, externalUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This user: " + externalUserId +" was not registered to this event: " + externalEventId));
+        eventAttendanceRepository.delete(registration);
+    }
 }
