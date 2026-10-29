@@ -5,6 +5,8 @@ import org.epm.event.dto.eventAttendance.EventAttendanceResponseDto;
 import org.epm.event.dto.user.EventAttendeeOverviewDto;
 import org.epm.event.dto.user.EventOrganizerOverviewDto;
 import org.epm.event.dto.user.UserResponseDto;
+import org.epm.event.dto.vendor.EventVendorOverviewDto;
+import org.epm.event.dto.vendor.VendorResponseDto;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventAttendance;
 import org.epm.event.repository.EventAttendanceRepository;
@@ -64,7 +66,7 @@ public class EventAttendanceService {
         List<UserResponseDto> attendees = registrations.stream()
                 .map(r -> eventClient.getUserByExternalId(r.getExternalUserId()))
                 .filter(Objects::nonNull)
-                .toList();
+                  .toList();
 
         int currentCount = registrations.size();
         int maxCapacity = event.getEventAttendance() != null ? event.getEventAttendance() : 0;
@@ -114,5 +116,19 @@ public class EventAttendanceService {
         EventAttendance registration = eventAttendanceRepository.findByExternalEventIdAndExternalUserId(externalEventId, externalUserId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This user: " + externalUserId +" was not registered to this event: " + externalEventId));
         eventAttendanceRepository.delete(registration);
+    }
+
+    @Transactional
+    public EventVendorOverviewDto getVendorWithHostedEvents(UUID externalVendorId){
+        VendorResponseDto vendor = eventClient.getVendorByExternalId(externalVendorId);
+        if(vendor == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found: " + externalVendorId);
+        }
+
+        List<EventAttendanceResponseDto> hostedEvents = eventRepository.findByExternalVendorId(externalVendorId)
+                .stream()
+                .map(event -> getEventAttendees(event.getExternalEventId()))
+                .toList();
+        return new EventVendorOverviewDto(vendor, hostedEvents);
     }
 }

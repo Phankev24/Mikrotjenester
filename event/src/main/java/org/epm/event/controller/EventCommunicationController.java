@@ -6,6 +6,7 @@ import org.epm.event.dto.event.EventResponseDto;
 import org.epm.event.dto.user.EventAttendeeOverviewDto;
 import org.epm.event.dto.user.EventOrganizerOverviewDto;
 import org.epm.event.dto.user.EventUserResponseDto;
+import org.epm.event.dto.vendor.EventVendorOverviewDto;
 import org.epm.event.dto.vendor.EventVendorResponseDto;
 import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
@@ -60,17 +61,8 @@ public class EventCommunicationController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(description = "Gets ONE vendor and their events")
-    @GetMapping("/{externalId}/vendorEvent")
-    public ResponseEntity<EventVendorResponseDto> getVendorWithEvents(@PathVariable UUID externalId){
-        VendorResponseDto vendorDto = eventClient.getVendorByExternalId(externalId);
-        List<EventResponseDto> events = eventService.getEventByVendorUUID(externalId);
 
-        return ResponseEntity.ok(new EventVendorResponseDto(vendorDto, events));
-    }
-
-
-    @Operation(description = "Gets all user and events")
+    @Operation(summary = "Basically gets all users",description = "Gets all user and events")
     @GetMapping("/usersWithEvents")
     public ResponseEntity<List<EventUserResponseDto>> getAllUsersWithEvents(){
         List<UserResponseDto> allUsers = eventClient.getUsers();
@@ -102,5 +94,11 @@ public class EventCommunicationController {
     @GetMapping("/{externalUserId}/organizedEvents")
     public ResponseEntity<EventOrganizerOverviewDto> getEventWithUsersAndAttendees(@PathVariable UUID externalUserId) {
         return ResponseEntity.ok(eventAttendanceService.getOrganizerWithCreatedEvents(externalUserId));
+    }
+
+    @Operation(summary = "Get vendor details, all events hosted by the vendor and attendees")
+    @GetMapping("/vendor/{externalVendorId}/organizedEvents")
+    public ResponseEntity<EventVendorOverviewDto> getVendorWithHostedEvents(@PathVariable UUID externalVendorId){
+        return ResponseEntity.ok(eventAttendanceService.getVendorWithHostedEvents(externalVendorId));
     }
 }
