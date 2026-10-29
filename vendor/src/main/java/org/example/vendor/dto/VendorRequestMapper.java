@@ -26,9 +26,9 @@ public class VendorRequestMapper {
         return patch;
     }
 
-    /** Body sent to event's POST /api/event/vendor/{id}. */
+    /** Body sent to event's POST /api/event/vendor/{id}. The enum is sent as its name, e.g. "DINNER". */
     public EventPayload toEventPayload(VendorEventRequest r) {
         return new EventPayload(r.eventName(), r.eventDescription(),
-                r.eventCategory(), r.eventLocation(), r.eventAttendance());
+                r.eventCategory().name(), r.eventLocation(), r.eventAttendance());
     }
 }

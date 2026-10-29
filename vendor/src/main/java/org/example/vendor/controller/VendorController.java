@@ -68,9 +68,4 @@ public class VendorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toEventResponse(created));
     }
 
-    /** Events this vendor has posted. Empty list = none. */
-    @GetMapping("/{externalId}/events")
-    public List<VendorEventResponse> getEvents(@PathVariable UUID externalId) {
-        return vendorService.getEvents(externalId).stream().map(responseMapper::toEventResponse).toList();
-    }
 }

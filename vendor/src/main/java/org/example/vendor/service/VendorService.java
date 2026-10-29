@@ -72,12 +72,6 @@ public class VendorService {
         return eventClient.createVendorEvent(vendorExternalId, payload);
     }
 
-    /** FLOW list a vendor's events (read from the event service). */
-    public List<EventDto> getEvents(UUID vendorExternalId) {
-        find(vendorExternalId);
-        return eventClient.getEventsByVendor(vendorExternalId);
-    }
-
     /** Deleting a vendor does not touch its events; event keeps them with the old vendor id. */
     @Transactional
     public void deleteVendor(UUID externalId) {
