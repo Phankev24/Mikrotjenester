@@ -1,4 +1,20 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-createRoot(document.getElementById("root")).render(<h1>Hello React</h1>);
+import HomePage from '../pages/HomePage';
+import EventPage from '../pages/event/EventPage';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Routes>
+                {/*Delt Home page */}
+                <Route path="/" element={<HomePage />} />
+
+                {/* Isolert Event page */}
+                <Route path="/events/*" element={<EventPage />} />
+            </Routes>
+        </BrowserRouter>
+    </React.StrictMode>
+);
