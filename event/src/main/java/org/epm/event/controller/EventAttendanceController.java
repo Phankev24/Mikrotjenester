@@ -6,11 +6,13 @@ import org.epm.event.service.EventAttendanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/event/{externalEventId}/attend")
+@CrossOrigin(origins = "http://localhost:5173")
 public class EventAttendanceController {
     private final EventAttendanceService attendanceService;
 
