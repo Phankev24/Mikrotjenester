@@ -12,6 +12,24 @@ export interface EventResponseDto {
     eventAttendance: number;
 }
 
+export interface EventCreateDto {
+    eventName: string;
+    eventDescription: string;
+    eventCategory: string;
+    eventLocation: string;
+    eventAttendance: number;
+    eventDateTime?: string;
+}
+
+export interface EventUpdateDto {
+    eventName?: string;
+    eventDescription?: string;
+    eventAttendance?: number;
+    eventLocation?: string;
+    eventDateTime?: string;
+    eventCategory?: string;
+}
+
 export interface UserResponseDto {
     id: number;
     externalUserId: string;
@@ -42,4 +60,28 @@ export interface EventVendorResponseDto {
 export interface EventUserResponseDto {
     user: UserResponseDto;
     events: EventResponseDto[];
+}
+
+export interface EventAttendanceResponseDto {
+    externalEventId: string;
+    eventName: string;
+    maxCapacity: number;
+    currentAttendanceCount: number;
+    remainingCapacity: number;
+    attendees: UserResponseDto[];
+}
+
+export interface EventAttendeeOverviewDto {
+    attendee: UserResponseDto;
+    joinedEvents: EventAttendanceResponseDto[];
+}
+
+export interface EventOrganizerOverviewDto {
+    organizer: UserResponseDto;
+    hostedEvents: EventAttendanceResponseDto[];
+}
+
+export interface EventVendorOverviewDto {
+    vendor: VendorResponseDto;
+    hostedEvents: EventAttendanceResponseDto[];
 }
