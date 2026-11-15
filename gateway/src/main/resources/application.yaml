@@ -18,11 +18,16 @@ spring:
               uri: lb://event
               predicates:
                 - Path=/api/event/**
+
             - id: vendor
               uri: lb://vendor
               predicates:
                 - Path=/api/vendor/**
 
+            - id: user
+              uri: lb://user
+              predicates:
+                - Path=/api/user/**
 server:
   port: 8100
 
