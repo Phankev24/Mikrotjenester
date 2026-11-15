@@ -18,3 +18,7 @@ spring:
 
   flyway:
     enabled: false
+
+services:
+  event:
+    url: http://localhost:8080

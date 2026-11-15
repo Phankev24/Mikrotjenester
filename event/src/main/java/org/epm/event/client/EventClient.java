@@ -5,6 +5,7 @@ import org.epm.event.dto.vendor.VendorResponseDto;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -15,11 +16,16 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class EventClient {
     private final RestTemplate restTemplate;
-    private final String vendorServiceUrl = "http://localhost:8082/api/vendors";
-    private final String userServiceUrl = "http://localhost:8081/api/user";
+    private String vendorServiceUrl = "http://localhost:8082/api/vendors";
+    private String userServiceUrl = "http://localhost:8081/api/user";
 
-    public EventClient(RestTemplateBuilder builder){
+    public EventClient(
+            RestTemplateBuilder builder,
+            @Value("${services.user.url}") String userBaseUrl,
+            @Value("${services.vendor.url}") String vendorBaseUrl) {
         this.restTemplate = builder.build();
+        this.userServiceUrl = userBaseUrl + "/api/user";
+        this.vendorServiceUrl = vendorBaseUrl + "/api/vendors";
     }
 
     public List<VendorResponseDto> getVendors(){

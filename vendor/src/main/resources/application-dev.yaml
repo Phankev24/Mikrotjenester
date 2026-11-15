@@ -12,6 +12,10 @@ spring:
     console:
       enabled: true
 
+services:
+  event:
+    url: http://localhost:8080
+
 
 
       # $env:SPRING_PROFILES_ACTIVE="dev"; .\mvnw spring-boot:run
