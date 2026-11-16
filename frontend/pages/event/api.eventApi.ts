@@ -10,7 +10,7 @@ import {
     EventVendorResponseDto,
 } from './types/event';
 
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = 'http://localhost:8100/api';
 
 export const eventApi = {
     getVendorsWithEvents: async (): Promise<EventVendorResponseDto[]> => {
