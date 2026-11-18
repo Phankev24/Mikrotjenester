@@ -28,7 +28,7 @@ public class Dataintializer {
                     UUID.fromString("00000000-0000-0000-0000-000000000001"),// eventOrganizer
                     UUID.fromString("00000000-0000-0000-0000-000000000001"),
                     null, // externalUserId (null for vendor-created event)
-                    UUID.randomUUID() // externalEventId
+                    UUID.fromString("11111111-1111-1111-1111-111111111111") // externalEventId
             );
 
             Event event2 = new Event(
@@ -41,7 +41,7 @@ public class Dataintializer {
                     UUID.fromString("a7f3bf47-f373-4cdf-b81c-b0475305b7fe"),  // eventOrganizer
                     null, // externalVendorId (null for user-created event)
                     UUID.fromString("a7f3bf47-f373-4cdf-b81c-b0475305b7fe"), // externalUserId
-                    UUID.randomUUID() // externalEventId
+                    UUID.fromString("22222222-2222-2222-2222-222222222222") // externalEventId
             );
 
             eventRepository.save(event1);

@@ -44,6 +44,12 @@ spring:
 
 server:
   port: 8082
+  forward-headers-strategy: framework
+
+springdoc:
+  swagger-ui:
+    config-url: /vendor/v3/api-docs/swagger-config
+    url: /vendor/v3/api-docs
 
 event:
   service:
@@ -52,11 +58,6 @@ event:
 app:
   internal:
     secured: false
-
-springdoc:
-  swagger-ui:
-    oauth:
-      client-id: swagger
 
 management:
   endpoints:

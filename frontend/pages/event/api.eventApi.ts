@@ -114,4 +114,14 @@ export const eventApi = {
         if (!response.ok) throw new Error('Failed to create vendor event');
         return response.json();
     },
+
+    deleteEvent: async (externalEventId: string): Promise<void> => {
+        const response = await fetch(`${BASE_URL}/event/${externalEventId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || 'Failed to delete event');
+        }
+    },
 };

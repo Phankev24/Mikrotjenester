@@ -160,6 +160,24 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
         }
     };
 
+    const handleDeleteEvent = async (eventId: string, eventName: string) => {
+        if (!window.confirm(`Delete event "${eventName}"?`)) return;
+        setStatusMsg(null);
+        setErrorMsg(null);
+        try {
+            await eventApi.deleteEvent(eventId);
+            if (expandedEventId === eventId) {
+                setExpandedEventId(null);
+                setExpandedAttendance(null);
+            }
+            setStatusMsg(`Deleted event "${eventName}".`);
+            await loadUserWorkspace();
+            onDataChanged();
+        } catch (err: any) {
+            setErrorMsg(err.message);
+        }
+    };
+
     if (!selectedUserId) {
         return <p>Select a user from the top bar to begin.</p>;
     }
@@ -347,7 +365,15 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
                                                     </button>
 
                                                     {isOrganizer && (
-                                                        <button onClick={() => startEditing(event)}>Edit</button>
+                                                        <>
+                                                            <button onClick={() => startEditing(event)}>Edit</button>
+                                                            <button
+                                                                onClick={() => handleDeleteEvent(event.externalEventId, event.eventName)}
+                                                                style={{ backgroundColor: '#fee2e2', borderColor: '#ef4444' }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </>
                                                     )}
                                                 </div>
                                             </div>
