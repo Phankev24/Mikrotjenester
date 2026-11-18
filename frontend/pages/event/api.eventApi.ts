@@ -1,7 +1,7 @@
 import {
     EventAttendanceResponseDto,
     EventAttendeeOverviewDto,
-    EventCreateDto,
+    EventCreateDto, EventJoinedNotificationDto,
     EventOrganizerOverviewDto,
     EventResponseDto,
     EventUpdateDto,
@@ -16,6 +16,19 @@ export const eventApi = {
     getVendorsWithEvents: async (): Promise<EventVendorResponseDto[]> => {
         const response = await fetch(`${BASE_URL}/client/event/vendorsWithEvents`);
         if (!response.ok) throw new Error('Failed to fetch vendors with events');
+        return response.json();
+
+    },
+
+    getUserNotifications: async (externalUserId: string): Promise<EventJoinedNotificationDto[]> => {
+        const response = await fetch(`${BASE_URL}/user/${externalUserId}/notifications`);
+        if (!response.ok) return [];
+        return response.json();
+    },
+
+    getVendorNotifications: async (externalVendorId: string): Promise<EventJoinedNotificationDto[]> => {
+        const response = await fetch(`${BASE_URL}/vendors/${externalVendorId}/notifications`);
+        if (!response.ok) return [];
         return response.json();
     },
 

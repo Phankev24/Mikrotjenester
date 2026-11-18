@@ -1,4 +1,3 @@
-// @ts-ignore
 import React, { useEffect, useState } from 'react';
 import { eventApi } from '../api.eventApi';
 import {
@@ -7,6 +6,7 @@ import {
     EventUpdateDto,
     EventVendorOverviewDto,
 } from '../types/event';
+import {OrganizerNotifications} from "./OrganizerNotifications.tsx";
 
 interface VendorPortalProps {
     selectedVendorId: string;
@@ -153,6 +153,7 @@ export const VendorPortal: React.FC<VendorPortalProps> = ({ selectedVendorId, on
                     ) : (
                         <p>Loading company profile...</p>
                     )}
+                    <OrganizerNotifications organizerId={selectedVendorId} type="vendor" />
                 </section>
 
                 {/* Create Vendor Event Form */}

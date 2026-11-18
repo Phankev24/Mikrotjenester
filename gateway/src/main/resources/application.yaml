@@ -9,6 +9,9 @@ spring:
     consul:
       host: localhost
       port: 8500
+      discovery:
+        hostname: localhost
+        prefer-ip-address: false
 
     gateway:
       server:
@@ -35,17 +38,17 @@ spring:
             - id: event
               uri: lb://event
               predicates:
-                - Path=/api/event/**
+                - Path=/api/event/**, /api/client/event/**
 
             - id: vendor
               uri: lb://vendor
               predicates:
-                - Path=/api/vendor/**
+                - Path=/api/vendor/**, /api/vendors/**
 
             - id: user
               uri: lb://user
               predicates:
-                - Path=/api/user/**
+                - Path=/api/user/**, /api/auth/**, /oauth2/**, /login/oauth2/**
 server:
   port: 8100
 

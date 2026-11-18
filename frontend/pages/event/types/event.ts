@@ -85,3 +85,11 @@ export interface EventVendorOverviewDto {
     vendor: VendorResponseDto;
     hostedEvents: EventAttendanceResponseDto[];
 }
+
+export interface EventJoinedNotificationDto {
+    externalEventId: string;
+    eventName: string;
+    attendeeUserId: string;
+    message: string;
+    joinedAt: string;
+}

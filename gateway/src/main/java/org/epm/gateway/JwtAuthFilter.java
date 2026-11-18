@@ -63,7 +63,19 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         if (HttpMethod.OPTIONS.equals(method)) {
             return true;
         }
-        if (path.startsWith("/api/user/oauth2/") || path.startsWith("/api/user/login/oauth2/")) {
+        if (path.startsWith("/api/user/oauth2/")
+                || path.startsWith("/api/user/login/oauth2/")
+                || path.startsWith("/api/client/event/")
+                || path.equals("/api/event")
+                || path.startsWith("/api/event/")
+                || path.equals("/api/vendors")
+                || path.startsWith("/api/vendors/")
+                || path.equals("/api/vendor")
+                || path.startsWith("/api/vendor/")) {
+            return true;
+        }
+        if (HttpMethod.GET.equals(method)
+                && (path.equals("/api/user") || path.startsWith("/api/user/"))) {
             return true;
         }
         boolean post = HttpMethod.POST.equals(method);

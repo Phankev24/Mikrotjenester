@@ -6,6 +6,8 @@ import {
     EventResponseDto,
     EventUpdateDto,
 } from '../types/event';
+import {OrganizerNotifications} from "./OrganizerNotifications.tsx";
+
 
 interface UserPortalProps {
     selectedUserId: string;
@@ -246,6 +248,9 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
                             ))}
                         </ul>
                     )}
+                    <div style={{ marginTop: '1rem' }}>
+                        <OrganizerNotifications organizerId={selectedUserId} type="user" />
+                    </div>
 
                     <h4>Events I Created ({hostedEvents.length})</h4>
                     {hostedEvents.length === 0 ? (

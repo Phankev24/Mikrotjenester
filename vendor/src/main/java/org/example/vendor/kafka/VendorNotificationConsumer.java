@@ -38,7 +38,7 @@ public class VendorNotificationConsumer {
             Instant joinedAt
     ) {}
 
-    @KafkaListener(topics = "event-joined", groupId = "user-notification-group")
+    @KafkaListener(topics = "event-joined", groupId = "vendor-notification-group")
     public void onEventJoined(String payload) {
         try {
             EventJoinedEvent event = objectMapper.readValue(payload, EventJoinedEvent.class);

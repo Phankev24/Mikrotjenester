@@ -15,6 +15,9 @@ spring:
     consul:
       host: localhost
       port: 8500
+      discovery:
+        hostname: localhost
+        prefer-ip-address: false
 
   h2:
     console:
