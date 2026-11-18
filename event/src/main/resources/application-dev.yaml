@@ -18,6 +18,7 @@ spring:
       discovery:
         hostname: localhost
         prefer-ip-address: false
+        instance-id: ${spring.application.name}-${random.value}
 
 
   h2:
