@@ -16,4 +16,5 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
     List<EventAttendance> findByExternalEventId(UUID externalEventId);
     List<EventAttendance> findByExternalUserId(UUID externalUserId);
     Optional<EventAttendance> findByExternalEventIdAndExternalUserId(UUID externalEventId, UUID externalUserId);
+    void deleteByExternalEventId(UUID externalEventId);
 }

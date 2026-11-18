@@ -78,4 +78,10 @@ public class EventController {
         EventResponseDto updatedEvent = eventService.updateEvent(externalEventId, eventUpdateDto);
         return ResponseEntity.ok(updatedEvent);
     }
+
+    @DeleteMapping("/{externalEventId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEvent(@PathVariable UUID externalEventId) {
+        eventService.deleteEvent(externalEventId);
+    }
 }

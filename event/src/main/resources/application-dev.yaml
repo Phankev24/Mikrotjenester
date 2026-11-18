@@ -37,6 +37,12 @@ spring:
 
 server:
   port: 8080
+  forward-headers-strategy: framework
+
+springdoc:
+  swagger-ui:
+    config-url: /event/v3/api-docs/swagger-config
+    url: /event/v3/api-docs
 
 services:
   user:

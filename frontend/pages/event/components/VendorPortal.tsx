@@ -111,6 +111,20 @@ export const VendorPortal: React.FC<VendorPortalProps> = ({ selectedVendorId, on
         }
     };
 
+    const handleDeleteVendorEvent = async (eventId: string, eventName: string) => {
+        if (!window.confirm(`Delete vendor event "${eventName}"?`)) return;
+        setStatusMsg(null);
+        setErrorMsg(null);
+        try {
+            await eventApi.deleteEvent(eventId);
+            setStatusMsg(`Deleted vendor event "${eventName}".`);
+            await loadVendorWorkspace();
+            onDataChanged();
+        } catch (err: any) {
+            setErrorMsg(err.message);
+        }
+    };
+
     if (!selectedVendorId) {
         return <p>Select a vendor from the top bar to begin.</p>;
     }
@@ -270,6 +284,15 @@ export const VendorPortal: React.FC<VendorPortalProps> = ({ selectedVendorId, on
                                                 </div>
 
                                                 <button onClick={() => startEditing(ev.externalEventId)}>Edit Event</button>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button onClick={() => startEditing(ev.externalEventId)}>Edit Event</button>
+                                                    <button
+                                                        onClick={() => handleDeleteVendorEvent(ev.externalEventId, ev.eventName)}
+                                                        style={{ backgroundColor: '#fee2e2', borderColor: '#ef4444' }}
+                                                    >
+                                                        Delete Event
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {/* Attendee Roster Table */}

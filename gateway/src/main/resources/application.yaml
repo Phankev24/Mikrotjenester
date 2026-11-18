@@ -6,14 +6,19 @@ spring:
     import: "optional:consul:"
 
   cloud:
+    loadbalancer:
+      cache:
+        ttl: 2s
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
-        hostname: localhost
-        prefer-ip-address: false
+        prefer-ip-address: true
 
     gateway:
+      discovery:
+        locator:
+          enabled: true
       server:
         webflux:
           globalcors:
@@ -23,6 +28,7 @@ spring:
                 allowed-origins:
                   - "http://localhost:5173"
                   - "http://localhost:3000"
+                  - "http://localhost:8100"
                 allowed-methods:
                   - GET
                   - POST
@@ -32,6 +38,7 @@ spring:
                   - OPTIONS
                 allowed-headers:
                   - "*"
+                allow-credentials: true
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
           routes:
@@ -49,6 +56,27 @@ spring:
               uri: lb://user
               predicates:
                 - Path=/api/user/**, /api/auth/**, /oauth2/**, /login/oauth2/**
+
+            - id: event-swagger
+              uri: lb://event
+              predicates:
+                - Path=/event/swagger-ui/**, /event/v3/api-docs, /event/v3/api-docs/**
+              filters:
+                - RewritePath=/event/(?<segment>.*), /${segment}
+
+            - id: vendor-swagger
+              uri: lb://vendor
+              predicates:
+                - Path=/vendor/swagger-ui/**, /vendor/v3/api-docs, /vendor/v3/api-docs/**
+              filters:
+                - RewritePath=/vendor/(?<segment>.*), /${segment}
+
+            - id: user-swagger
+              uri: lb://user
+              predicates:
+                - Path=/user/swagger-ui/**, /user/v3/api-docs, /user/v3/api-docs/**
+              filters:
+                - RewritePath=/user/(?<segment>.*), /${segment}
 server:
   port: 8100
 
