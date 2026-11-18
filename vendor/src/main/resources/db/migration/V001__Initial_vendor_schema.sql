@@ -1,11 +1,10 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE TABLE vendor (
-    id BIGSERIAL PRIMARY KEY,
-    event_id UUID NOT NULL,
-    type VARCHAR(255),
-    company_name VARCHAR(255),
-    services_description VARCHAR(255),
-    website VARCHAR(255),
-    phone VARCHAR(255)
+id BIGSERIAL PRIMARY KEY,
+external_id UUID NOT NULL UNIQUE,
+company_name VARCHAR(255) NOT NULL,
+password VARCHAR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE,
+phone VARCHAR(255),
+website VARCHAR(255),
+description VARCHAR(1000)
 );

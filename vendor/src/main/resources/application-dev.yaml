@@ -1,21 +1,62 @@
-# Activated with the "dev" profile. Replaces Postgres with in-memory H2.
 spring:
+  application:
+    name: vendor                     # Navnet Consul og andre tjenester bruker (lb://vendor)
+
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+
   datasource:
-    url: jdbc:h2:mem:vendordb;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5434/vendorPlanerManager
+    username: root
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true                    # Flyway kjører migrasjoner i prod
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
   jpa:
     hibernate:
-      ddl-auto: create-drop   # schema built from the entity, discarded on shutdown
-  h2:
-    console:
-      enabled: true
+      ddl-auto: validate             # Flyway eier skjemaet
+    # Ingen tvunget PostgreSQL-dialekt:
+    # Hibernate finner den selv, og en tvunget dialekt
+    # kan skape problemer ved testing med H2.
 
-services:
-  event:
-    url: http://localhost:8080
+server:
+  port: 8082
 
+  # error:
+  #   include-message: always        # Kun dev
 
+event:
+  service:
+    url: http://localhost:8080       # Gateway-url for kommunikasjon mellom tjenester
 
-      # $env:SPRING_PROFILES_ACTIVE="dev"; .\mvnw spring-boot:run
+app:
+  internal:
+    secured: false                   # Ingen Keycloak SERVICE-token nødvendig. planer om å bruke keycloack ble revurdert
+
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: swagger
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"       # Consul-helsesjekken kaller /actuator/health
