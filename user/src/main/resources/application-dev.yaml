@@ -9,7 +9,7 @@ spring:
     password:
 
   config:
-    import: "optional:consul:"
+    import: "optional:consul:,optional:file:.env[.properties]"
 
   cloud:
     consul:

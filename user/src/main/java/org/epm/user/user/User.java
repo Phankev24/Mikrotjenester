@@ -38,6 +38,12 @@ public class User {
     private Integer age;
     private String gender;
 
+    @Column(unique = true)
+    private String githubId;
+
+    @Column(unique = true)
+    private String googleId;
+
     @PrePersist
     void assignExternalUserId() {
         if (externalUserId == null) {

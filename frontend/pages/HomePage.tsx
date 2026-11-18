@@ -10,7 +10,7 @@ export default function HomePage() {
 
             <nav style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                 <Link to="/events">Events (Your Workspace)</Link>
-                {/* <Link to="/users">Users</Link> */}
+                <Link to="/users">Users</Link>
                 {/* <Link to="/vendors">Vendors</Link> */}
             </nav>
         </div>
