@@ -1,16 +1,20 @@
 package org.epm.user.service;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.epm.user.user.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -35,5 +39,19 @@ public class TokenService {
                 .expiration(Date.from(now.plus(lifetime)))
                 .signWith(key)
                 .compact();
+    }
+
+    public UUID subjectOf(String token) {
+        try {
+            String subject = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+            return UUID.fromString(subject);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+        }
     }
 }

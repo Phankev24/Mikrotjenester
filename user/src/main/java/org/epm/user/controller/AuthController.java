@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.epm.user.dto.LoginRequestDto;
 import org.epm.user.dto.LoginResponseDto;
 import org.epm.user.service.AuthService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.epm.user.dto.UserResponseDto;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -31,7 +30,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> me(@RequestHeader("X-User-Id") UUID externalUserId) {
-        return ResponseEntity.ok(authService.me(externalUserId));
+    public ResponseEntity<UserResponseDto> me(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+        return ResponseEntity.ok(authService.meFromAuthorization(authorization));
     }
 }

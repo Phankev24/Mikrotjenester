@@ -25,6 +25,19 @@ import { API_URL, authFetch } from '../auth/auth';
         return response.json();
     },
 
+    getAllEvents: async (): Promise<EventDto[]> => {
+        const response = await authFetch(`${API_URL}/event`);
+        if (!response.ok) throw new Error('Failed to fetch events');
+        return response.json();
+    },
+
+    getAttendingEventIds: async (externalUserId: string): Promise<string[]> => {
+        const response = await authFetch(`${API_URL}/client/event/${externalUserId}/attendingEvents`);
+        if (!response.ok) throw new Error('Failed to fetch attended events');
+        const data: { joinedEvents: { externalEventId: string }[] } = await response.json();
+        return data.joinedEvents.map((e) => e.externalEventId);
+    },
+
     createUser: async (dto: UserCreateDto): Promise<UserResponseDto> => {
         const response = await authFetch(BASE_URL, { method: 'POST', headers: json, body: JSON.stringify(dto) });
         if (!response.ok) throw new Error(`Failed to create user (${response.status}): ${await response.text()}`);

@@ -36,6 +36,13 @@ public class AuthService {
         return new LoginResponseDto(tokenService.issueToken(user, "LOCAL"), userResponseMapper.toDTO(user));
     }
 
+    public UserResponseDto meFromAuthorization(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing bearer token");
+        }
+        return me(tokenService.subjectOf(authorization.substring("Bearer ".length())));
+    }
+
     public UserResponseDto me(UUID externalUserId) {
         return userRepo.findByExternalUserId(externalUserId)
                 .map(userResponseMapper::toDTO)

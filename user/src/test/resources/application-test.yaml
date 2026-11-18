@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: user
+
+  cloud:
+    discovery:
+      enabled: false
+    consul:
+      enabled: false
+      config:
+        enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+  kafka:
+    listener:
+      auto-startup: false
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret
+    expiration-minutes: 5
+  client-url: http://client.test
+  oauth:
+    redirect-base: http://gateway.test
+
+event-service:
+  base-url: http://event.test

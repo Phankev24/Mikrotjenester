@@ -1,0 +1,229 @@
+.user-page {
+    width: 100%;
+    min-height: 100vh;
+    font-family: sans-serif;
+    background-color: #fafafa;
+}
+
+/* ---------- header ---------- */
+
+.user-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #e5e7eb;
+    border-bottom: 1px solid #bbb;
+    padding: 0.75rem 2rem;
+}
+
+.user-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-home-link {
+    text-decoration: none;
+    color: #111;
+    font-weight: bold;
+}
+
+.user-picker-select {
+    padding: 0.3rem;
+}
+
+.user-signed-in {
+    font-size: 0.9rem;
+}
+
+/* ---------- layout ---------- */
+
+.user-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+}
+
+.user-error {
+    padding: 1rem;
+    background-color: #ffe6e6;
+    border: 1px solid red;
+    margin-bottom: 1rem;
+}
+
+/* ---------- buttons ---------- */
+
+.user-page button {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #999;
+    cursor: pointer;
+}
+
+.user-page .user-primary-btn {
+    background-color: #1d4ed8;
+    color: #dbeafe;
+    font-weight: bold;
+}
+
+.user-page .user-danger-btn {
+    color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* ---------- profile (the main focus) ---------- */
+
+.user-profile {
+    border: 1px solid #ccc;
+    border-left: 5px solid #2563eb;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.user-profile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.user-tag {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    background-color: #dbeafe;
+    border: 1px solid #999;
+    margin-right: 0.5rem;
+}
+
+.user-tag-event {
+    background-color: #fef3c7;
+}
+
+.user-profile-name {
+    margin: 0.6rem 0 0.1rem;
+    font-size: 2rem;
+}
+
+.user-handle {
+    font-size: 1rem;
+    color: #555;
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.user-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem 2rem;
+    margin: 1.5rem 0 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #ddd;
+}
+
+.user-info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+}
+
+.user-info-value {
+    margin-top: 0.2rem;
+    font-size: 1.05rem;
+}
+
+.user-info-empty {
+    color: #888;
+    font-style: italic;
+}
+
+.user-uuid {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+/* ---------- edit profile ---------- */
+
+.user-edit {
+    border: 1px solid #ccc;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.user-edit h3 {
+    margin: 0 0 1rem;
+}
+
+.user-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1.5rem;
+    max-width: 720px;
+}
+
+.user-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* ---------- events ---------- */
+
+.user-empty {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.user-events {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-event-card {
+    border: 1px solid #bbb;
+    padding: 1rem;
+}
+
+.user-event-category {
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.user-event-name {
+    margin: 0.4rem 0;
+}
+
+.user-event-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
+}
