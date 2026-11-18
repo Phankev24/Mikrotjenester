@@ -14,18 +14,23 @@ spring:
       server:
         webflux:
           globalcors:
+            add-to-simple-url-handler-mapping: true
             cors-configurations:
               '[/**]':
-                allowedOrigins:
+                allowed-origins:
                   - "http://localhost:5173"
-                allowedMethods:
+                  - "http://localhost:3000"
+                allowed-methods:
                   - GET
                   - POST
                   - PUT
                   - PATCH
                   - DELETE
                   - OPTIONS
-                allowedHeaders: "*"
+                allowed-headers:
+                  - "*"
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
           routes:
             - id: event
               uri: lb://event

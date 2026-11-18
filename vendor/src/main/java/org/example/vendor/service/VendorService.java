@@ -6,32 +6,43 @@ import org.example.vendor.client.EventPayload;
 import org.example.vendor.repository.VendorRepo;
 import org.example.vendor.vendor.Vendor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.example.vendor.security.GoogleTokenVerifier;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Business logic. Works on entities and client DTOs, never API DTOs.
- * Vendors are identified by externalId. Events are owned by the event service.
- */
 @Service
 public class VendorService {
 
     private final VendorRepo vendorRepo;
     private final EventClient eventClient;
+    private final PasswordEncoder passwordEncoder;
 
-    public VendorService(VendorRepo vendorRepo, EventClient eventClient) {
+    public VendorService(
+            VendorRepo vendorRepo,
+            EventClient eventClient,
+            PasswordEncoder passwordEncoder,
+            GoogleTokenVerifier googleVerifier) {
+
         this.vendorRepo = vendorRepo;
         this.eventClient = eventClient;
+        this.passwordEncoder = passwordEncoder;
+        this.googleVerifier = googleVerifier;
     }
 
-    /** FLOW create: email must be free (409). Password is stored as plain text for now. */
     @Transactional
     public Vendor createVendor(Vendor vendor) {
+
         requireEmailFree(vendor.getEmail());
+
+        vendor.setPassword(
+                passwordEncoder.encode(
+                        vendor.getPassword()));
+
         return vendorRepo.save(vendor);
     }
 
@@ -43,50 +54,115 @@ public class VendorService {
         return find(externalId);
     }
 
-    /** FLOW patch: only non-null fields in "patch" are applied. A new email must be free. */
     @Transactional
     public Vendor updateVendor(UUID externalId, Vendor patch) {
+
         Vendor vendor = find(externalId);
-        if (patch.getCompanyName() != null) vendor.setCompanyName(patch.getCompanyName());
-        if (patch.getEmail() != null && !patch.getEmail().equals(vendor.getEmail())) {
+
+        if (patch.getCompanyName() != null) {
+            vendor.setCompanyName(patch.getCompanyName());
+        }
+
+        if (patch.getEmail() != null &&
+                !patch.getEmail().equals(vendor.getEmail())) {
+
             requireEmailFree(patch.getEmail());
+
             vendor.setEmail(patch.getEmail());
         }
-        if (patch.getPassword() != null) vendor.setPassword(patch.getPassword());
-        if (patch.getPhone() != null) vendor.setPhone(patch.getPhone());
-        if (patch.getWebsite() != null) vendor.setWebsite(patch.getWebsite());
-        if (patch.getDescription() != null) vendor.setDescription(patch.getDescription());
+
+        if (patch.getPassword() != null) {
+            vendor.setPassword(
+                    passwordEncoder.encode(
+                            patch.getPassword()));
+        }
+
+        if (patch.getPhone() != null) {
+            vendor.setPhone(patch.getPhone());
+        }
+
+        if (patch.getWebsite() != null) {
+            vendor.setWebsite(patch.getWebsite());
+        }
+
+        if (patch.getDescription() != null) {
+            vendor.setDescription(patch.getDescription());
+        }
+
         return vendorRepo.save(vendor);
     }
 
-    /**
-     * FLOW vendor posts an event, knowing only its own id:
-     *  1. check the vendor exists (404)
-     *  2. event service creates the event with this vendor as organizer
-     * Nothing is saved locally, so there is no half-finished state to clean up.
-     * Deliberately not @Transactional: no database work, and we should not hold a
-     * connection open during an HTTP call.
-     */
-    public EventDto postEvent(UUID vendorExternalId, EventPayload payload) {
-        find(vendorExternalId);
-        return eventClient.createVendorEvent(vendorExternalId, payload);
+    public Vendor login(
+            String email,
+            String password) {
+
+        Vendor vendor = vendorRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.UNAUTHORIZED,
+                                "Invalid credentials"));
+
+        boolean valid =
+                passwordEncoder.matches(
+                        password,
+                        vendor.getPassword());
+
+        if (!valid) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Invalid credentials");
+        }
+
+        return vendor;
     }
 
-    /** Deleting a vendor does not touch its events; event keeps them with the old vendor id. */
+    public EventDto postEvent(
+            UUID vendorExternalId,
+            EventPayload payload) {
+
+        find(vendorExternalId);
+
+        return eventClient.createVendorEvent(
+                vendorExternalId,
+                payload);
+    }
+
     @Transactional
     public void deleteVendor(UUID externalId) {
         vendorRepo.delete(find(externalId));
     }
 
     private Vendor find(UUID externalId) {
+
         return vendorRepo.findByExternalId(externalId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Vendor not found: " + externalId));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Vendor not found: " + externalId));
     }
 
     private void requireEmailFree(String email) {
+
         if (vendorRepo.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Email already registered");
         }
+    }
+
+    private final GoogleTokenVerifier googleVerifier;
+
+// Add method:
+    /**
+     * Google login: verified email -> existing vendor, or a new one.
+     * New accounts get a random hashed password, so password login is impossible until it is changed.
+     */
+    @Transactional
+    public Vendor loginWithGoogle(String idToken) {
+        GoogleTokenVerifier.GoogleUser g = googleVerifier.verify(idToken);
+        return vendorRepo.findByEmail(g.email()).orElseGet(() -> vendorRepo.save(new Vendor(
+                g.name() != null && !g.name().isBlank() ? g.name() : g.email(),
+                passwordEncoder.encode(UUID.randomUUID().toString()),
+                g.email(), null, null, null)));
     }
 }

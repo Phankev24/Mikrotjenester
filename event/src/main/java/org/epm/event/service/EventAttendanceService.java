@@ -9,6 +9,8 @@ import org.epm.event.dto.vendor.EventVendorOverviewDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
 import org.epm.event.event.Event;
 import org.epm.event.event.EventAttendance;
+import org.epm.event.kafka.EventJoinedEvent;
+import org.epm.event.kafka.EventKafkaProducer;
 import org.epm.event.repository.EventAttendanceRepository;
 import org.epm.event.repository.EventRepository;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -25,11 +28,13 @@ public class EventAttendanceService {
     private final EventRepository eventRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EventClient eventClient;
+    private final EventKafkaProducer eventKafkaProducer;
 
-    public EventAttendanceService(EventRepository eventRepository, EventAttendanceRepository eventAttendanceRepository, EventClient eventClient) {
+    public EventAttendanceService(EventRepository eventRepository, EventAttendanceRepository eventAttendanceRepository, EventClient eventClient, EventKafkaProducer eventKafkaProducer) {
         this.eventRepository = eventRepository;
         this.eventAttendanceRepository = eventAttendanceRepository;
         this.eventClient = eventClient;
+        this.eventKafkaProducer = eventKafkaProducer;
     }
 
     @Transactional
@@ -54,6 +59,14 @@ public class EventAttendanceService {
         }
 
         eventAttendanceRepository.save(new EventAttendance(externalEventId, externalUserId));
+
+        eventKafkaProducer.publishEventJoined(new EventJoinedEvent(
+                event.getExternalEventId(),
+                event.getEventName(),
+                event.getEventOrganizer(),
+                externalUserId,
+                Instant.now()
+        ));
     }
 
     @Transactional(readOnly = true)

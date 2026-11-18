@@ -8,8 +8,9 @@ import java.util.UUID;
 
 public interface VendorRepo extends JpaRepository<Vendor, Long> {
 
-    // Lookup by public id. Callers never use the internal Long id.
     Optional<Vendor> findByExternalId(UUID externalId);
+
+    Optional<Vendor> findByEmail(String email);
 
     boolean existsByEmail(String email);
 }

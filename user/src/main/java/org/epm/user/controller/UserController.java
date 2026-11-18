@@ -6,6 +6,7 @@ import org.epm.user.dto.UserEventCreateDto;
 import org.epm.user.dto.UserUpdateDto;
 import org.epm.user.dto.UserWithEventsDto;
 import org.epm.user.event.EventDto;
+import org.epm.user.kafka.UserNotificationConsumer;
 import org.epm.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,11 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final UserNotificationConsumer userNotificationConsumer;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserNotificationConsumer userNotificationConsumer) {
         this.userService = userService;
+        this.userNotificationConsumer = userNotificationConsumer;
     }
 
     @GetMapping
@@ -66,5 +69,12 @@ public class UserController {
         UserResponseDto updatedUser = userService.updatedUser(id, userUpdateDto);
 
         return ResponseEntity.ok(updatedUser);
+    }
+
+
+    //kafka
+    @GetMapping("/{externalUserId}/notifications")
+    public ResponseEntity<List<UserNotificationConsumer.EventJoinedNotification>> getNotifications(@PathVariable UUID externalUserId){
+        return ResponseEntity.ok(userNotificationConsumer.getNotificationsForUser(externalUserId));
     }
 }

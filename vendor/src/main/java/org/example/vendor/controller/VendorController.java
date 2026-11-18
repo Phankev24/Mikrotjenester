@@ -2,6 +2,7 @@ package org.example.vendor.controller;
 
 import jakarta.validation.Valid;
 import org.example.vendor.dto.*;
+import org.example.vendor.kafka.VendorNotificationConsumer;
 import org.example.vendor.service.VendorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,15 @@ public class VendorController {
     private final VendorService vendorService;
     private final VendorRequestMapper requestMapper;
     private final VendorResponseMapper responseMapper;
+    private final VendorNotificationConsumer vendorNotificationConsumer;
 
     public VendorController(VendorService vendorService,
                             VendorRequestMapper requestMapper,
-                            VendorResponseMapper responseMapper) {
+                            VendorResponseMapper responseMapper, VendorNotificationConsumer vendorNotificationConsumer) {
         this.vendorService = vendorService;
         this.requestMapper = requestMapper;
         this.responseMapper = responseMapper;
+        this.vendorNotificationConsumer = vendorNotificationConsumer;
     }
 
     @PostMapping
@@ -68,4 +71,12 @@ public class VendorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toEventResponse(created));
     }
 
+
+
+    //kafka
+    @GetMapping("/{externalId}/notifications")
+    public ResponseEntity<List<VendorNotificationConsumer.EventJoinedNotification>> getNotifications(
+            @PathVariable UUID externalId) {
+        return ResponseEntity.ok(vendorNotificationConsumer.getNotificationsForVendor(externalId));
+    }
 }
