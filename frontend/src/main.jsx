@@ -5,10 +5,17 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
 import EventPage from '../pages/event/EventPage';
 import VendorApp from '../pages/vendor/pages/VendorApp'
+import UserPage from '../pages/user/user';
+import LoginPage from '../pages/auth/LoginPage';
+import RegisterPage from '../pages/auth/RegisterPage';
+import { OAuthCallbackPage } from '../pages/auth/OAuthCallbackPage';
+import ProtectedRoute from '../pages/auth/ProtectedRoute';
+import { AuthProvider } from '../pages/auth/authContext';
 
 ReactDOM.createRoot(getElementByIdOrThrow('root')).render(
     <React.StrictMode>
         <BrowserRouter>
+            <AuthProvider>
             <Routes>
                 {/* Delt Home page */}
                 <Route path="/" element={<HomePage />} />
@@ -34,6 +41,7 @@ ReactDOM.createRoot(getElementByIdOrThrow('root')).render(
                     }
                 />
             </Routes>
+            </AuthProvider>
         </BrowserRouter>
     </React.StrictMode>
 );
