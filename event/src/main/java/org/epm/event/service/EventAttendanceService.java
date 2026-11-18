@@ -60,11 +60,15 @@ public class EventAttendanceService {
 
         eventAttendanceRepository.save(new EventAttendance(externalEventId, externalUserId));
 
+        String attendeeName = user.firstName() + " " + user.lastName();
+
         eventKafkaProducer.publishEventJoined(new EventJoinedEvent(
                 event.getExternalEventId(),
                 event.getEventName(),
                 event.getEventOrganizer(),
                 externalUserId,
+                attendeeName,
+                user.email(),
                 Instant.now()
         ));
     }

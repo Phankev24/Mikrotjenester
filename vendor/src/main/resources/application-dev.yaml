@@ -9,9 +9,6 @@ spring:
     consul:
       host: localhost
       port: 8500
-      discovery:
-        hostname: localhost
-        prefer-ip-address: false
 
   security:
     oauth2:
@@ -22,36 +19,35 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:}
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/vendorPlanerManager
-    username: root
-    password: password
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:vendordb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
   flyway:
-    enabled: true                    # Flyway kjører migrasjoner i prod
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    enabled: false
 
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: validate             # Flyway eier skjemaet
-    # Ingen tvunget PostgreSQL-dialekt:
-    # Hibernate finner den selv, og en tvunget dialekt
-    # kan skape problemer ved testing med H2.
+      ddl-auto: create-drop
+    show-sql: true
 
 server:
   port: 8082
 
-  # error:
-  #   include-message: always        # Kun dev
-
 event:
   service:
-    url: http://localhost:8080       # Gateway-url for kommunikasjon mellom tjenester
+    url: http://localhost:8080
 
 app:
   internal:
-    secured: false                   # Ingen Keycloak SERVICE-token nødvendig. planer om å bruke keycloack ble revurdert
+    secured: false
 
 springdoc:
   swagger-ui:
@@ -62,4 +58,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info"       # Consul-helsesjekken kaller /actuator/health
+        include: "health,info"

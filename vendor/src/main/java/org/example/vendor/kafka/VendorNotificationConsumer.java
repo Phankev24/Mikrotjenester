@@ -27,6 +27,8 @@ public class VendorNotificationConsumer {
             String eventName,
             UUID organizerId,
             UUID attendeeUserId,
+            String attendeeName,
+            String attendeeEmail,
             Instant joinedAt
     ) {}
 
@@ -44,11 +46,16 @@ public class VendorNotificationConsumer {
             EventJoinedEvent event = objectMapper.readValue(payload, EventJoinedEvent.class);
 
             vendorRepo.findByExternalId(event.organizerId()).ifPresent(organizer -> {
+                String attendeeDisplay = (event.attendeeEmail() != null && !event.attendeeEmail().isBlank())
+                        ? String.format("%s (%s)", event.attendeeName(), event.attendeeEmail())
+                        : event.attendeeName();
+
                 String msg = String.format(
-                        "User %s joined your event '%s'",
-                        event.attendeeUserId(),
+                        "%s joined your event '%s'",
+                        attendeeDisplay,
                         event.eventName()
                 );
+
                 notificationsByVendor
                         .computeIfAbsent(organizer.getExternalId(), k -> new CopyOnWriteArrayList<>())
                         .add(new EventJoinedNotification(
@@ -58,7 +65,7 @@ public class VendorNotificationConsumer {
                                 msg,
                                 event.joinedAt()
                         ));
-                log.info("Notification stored for user organizer {} ({}): {}",
+                log.info("Notification stored for vendor organizer {} ({}): {}",
                         organizer.getCompanyName(), organizer.getExternalId(), msg);
             });
         } catch (Exception e) {
@@ -66,7 +73,7 @@ public class VendorNotificationConsumer {
         }
     }
 
-    public List<EventJoinedNotification> getNotificationsForVendor(UUID externalUserId) {
-        return notificationsByVendor.getOrDefault(externalUserId, List.of());
+    public List<EventJoinedNotification> getNotificationsForVendor(UUID externalVendorId) {
+        return notificationsByVendor.getOrDefault(externalVendorId, List.of());
     }
 }

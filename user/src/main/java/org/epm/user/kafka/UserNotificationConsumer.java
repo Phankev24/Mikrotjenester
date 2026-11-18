@@ -28,6 +28,8 @@ public class UserNotificationConsumer {
             String eventName,
             UUID organizerId,
             UUID attendeeUserId,
+            String attendeeName,
+            String attendeeEmail,
             Instant joinedAt
     ) {}
 
@@ -45,11 +47,16 @@ public class UserNotificationConsumer {
             EventJoinedEvent event = objectMapper.readValue(payload, EventJoinedEvent.class);
 
             userRepo.findByExternalUserId(event.organizerId()).ifPresent(organizer -> {
+                String attendeeDisplay = (event.attendeeEmail() != null && !event.attendeeEmail().isBlank())
+                        ? String.format("%s (%s)", event.attendeeName(), event.attendeeEmail())
+                        : event.attendeeName();
+
                 String msg = String.format(
-                        "User %s joined your event '%s'",
-                        event.attendeeUserId(),
+                        "%s joined your event '%s'",
+                        attendeeDisplay,
                         event.eventName()
                 );
+
                 notificationsByUser
                         .computeIfAbsent(organizer.getExternalUserId(), k -> new CopyOnWriteArrayList<>())
                         .add(new EventJoinedNotification(

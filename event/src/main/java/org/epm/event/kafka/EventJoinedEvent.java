@@ -8,6 +8,7 @@ public record EventJoinedEvent(
         String eventName,
         UUID organizerId,
         UUID attendeeUserId,
+        String attendeeName,
+        String attendeeEmail,
         Instant joinedAt
-) {
-}
+) {}
