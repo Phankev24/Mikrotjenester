@@ -56,6 +56,9 @@ services:
       SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS: "true"
 
   user:
+    env_file:
+      - path: ./user/.env
+        required: false
     build: ./user
 #    ports:
 #      - "8081:8081"
