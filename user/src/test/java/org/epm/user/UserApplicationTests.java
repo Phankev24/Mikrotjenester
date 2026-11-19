@@ -20,6 +20,17 @@ class UserApplicationTests extends IntegrationTestBase {
         Integer applied = jdbcTemplate.queryForObject(
                 "select count(*) from flyway_schema_history where success", Integer.class);
 
-        assertThat(applied).isEqualTo(5);
+        assertThat(applied).isEqualTo(6);
+    }
+
+    @Test
+    void seedMigrationCreatesOlaAndKariWithFixedIds() {
+        String olaId = jdbcTemplate.queryForObject(
+                "select cast(external_user_id as varchar) from users where username = 'ola'", String.class);
+        Integer kari = jdbcTemplate.queryForObject(
+                "select count(*) from users where username = 'kari'", Integer.class);
+
+        assertThat(olaId).isEqualTo("a7f3bf47-f373-4cdf-b81c-b0475305b7fe");
+        assertThat(kari).isEqualTo(1);
     }
 }
