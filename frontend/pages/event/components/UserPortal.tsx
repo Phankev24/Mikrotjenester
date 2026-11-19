@@ -50,20 +50,25 @@ export const UserPortal: React.FC<UserPortalProps> = ({
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const loadUserWorkspace = async () => {
-        if (!selectedUserId) return;
         setErrorMsg(null);
         try {
-            const [eventsData, attendingData, organizedData] = await Promise.all([
-                eventApi.getAllEvents(),
-                eventApi.getUserAttendingEvents(selectedUserId),
-                eventApi.getUserOrganizedEvents(selectedUserId),
-            ]);
+            const eventsData = await eventApi.getAllEvents();
             setAllEvents(eventsData);
-            setJoinedEvents(attendingData.joinedEvents);
-            setHostedEvents(organizedData.hostedEvents);
+
+            if (selectedUserId) {
+                const [attendingData, organizedData] = await Promise.all([
+                    eventApi.getUserAttendingEvents(selectedUserId),
+                    eventApi.getUserOrganizedEvents(selectedUserId),
+                ]);
+                setJoinedEvents(attendingData.joinedEvents);
+                setHostedEvents(organizedData.hostedEvents);
+            } else {
+                setJoinedEvents([]);
+                setHostedEvents([]);
+            }
         } catch (err: any) {
             console.error(err);
-            setErrorMsg(err.message || 'Failed to load user workspace data.');
+            setErrorMsg(err.message || 'Failed to load workspace data.');
         }
     };
 
@@ -90,6 +95,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({
     };
 
     const handleJoinEvent = async (eventId: string) => {
+        if (!selectedUserId) return;
         setStatusMsg(null);
         setErrorMsg(null);
         try {
@@ -106,6 +112,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({
     };
 
     const handleLeaveEvent = async (eventId: string) => {
+        if (!selectedUserId) return;
         setStatusMsg(null);
         setErrorMsg(null);
         try {
@@ -123,6 +130,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({
 
     const handleCreateEvent = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedUserId) return;
         setStatusMsg(null);
         setErrorMsg(null);
         try {
@@ -214,10 +222,6 @@ export const UserPortal: React.FC<UserPortalProps> = ({
         };
     };
 
-    if (!selectedUserId) {
-        return <p>Select a user from the top bar to begin.</p>;
-    }
-
     const joinedEventIds = new Set(joinedEvents.map((e) => e.externalEventId));
 
     return (
@@ -233,93 +237,108 @@ export const UserPortal: React.FC<UserPortalProps> = ({
                 </div>
             )}
 
-            {/* Top Grid: Create Event + My Personal Activity */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
-                {/* Create User Event Form */}
-                <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
-                    <h3>Host a Community Event</h3>
-                    <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <input
-                            type="text"
-                            placeholder="Event Name (e.g., Woods Rave, Birthday Dinner)"
-                            required
-                            value={createForm.eventName}
-                            onChange={(e) => setCreateForm({ ...createForm, eventName: e.target.value })}
-                        />
-                        <textarea
-                            placeholder="Description"
-                            required
-                            value={createForm.eventDescription}
-                            onChange={(e) => setCreateForm({ ...createForm, eventDescription: e.target.value })}
-                        />
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <select
-                                value={createForm.eventCategory}
-                                onChange={(e) => setCreateForm({ ...createForm, eventCategory: e.target.value })}
-                            >
-                                {EVENT_CATEGORIES.map((cat) => (
-                                    <option key={cat} value={cat}>
-                                        {cat}
-                                    </option>
-                                ))}
-                            </select>
+            {/* Top Grid: Create Event + My Personal Activity (only shown when signed in) */}
+            {selectedUserId ? (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                    {/* Create User Event Form */}
+                    <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
+                        <h3>Host a Community Event</h3>
+                        <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <input
                                 type="text"
-                                placeholder="Location"
+                                placeholder="Event Name (e.g., Woods Rave, Birthday Dinner)"
                                 required
-                                style={{ flex: 1 }}
-                                value={createForm.eventLocation}
-                                onChange={(e) => setCreateForm({ ...createForm, eventLocation: e.target.value })}
+                                value={createForm.eventName}
+                                onChange={(e) => setCreateForm({ ...createForm, eventName: e.target.value })}
                             />
-                            <input
-                                type="number"
-                                min={1}
-                                placeholder="Max Capacity"
+                            <textarea
+                                placeholder="Description"
                                 required
-                                style={{ width: '110px' }}
-                                value={createForm.eventAttendance}
-                                onChange={(e) => setCreateForm({ ...createForm, eventAttendance: Number(e.target.value) })}
+                                value={createForm.eventDescription}
+                                onChange={(e) => setCreateForm({ ...createForm, eventDescription: e.target.value })}
                             />
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <select
+                                    value={createForm.eventCategory}
+                                    onChange={(e) => setCreateForm({ ...createForm, eventCategory: e.target.value })}
+                                >
+                                    {EVENT_CATEGORIES.map((cat) => (
+                                        <option key={cat} value={cat}>
+                                            {cat}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="Location"
+                                    required
+                                    style={{ flex: 1 }}
+                                    value={createForm.eventLocation}
+                                    onChange={(e) => setCreateForm({ ...createForm, eventLocation: e.target.value })}
+                                />
+                                <input
+                                    type="number"
+                                    min={1}
+                                    placeholder="Max Capacity"
+                                    required
+                                    style={{ width: '110px' }}
+                                    value={createForm.eventAttendance}
+                                    onChange={(e) => setCreateForm({ ...createForm, eventAttendance: Number(e.target.value) })}
+                                />
+                            </div>
+                            <button type="submit">Create User Event</button>
+                        </form>
+                    </section>
+
+                    {/* My Joined & Hosted Events Summary */}
+                    <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
+                        <h3>My Activity</h3>
+
+                        <h4>Events I'm Attending ({joinedEvents.length})</h4>
+                        {joinedEvents.length === 0 ? (
+                            <p style={{ fontSize: '0.9rem', color: '#666' }}>Not registered for any events yet.</p>
+                        ) : (
+                            <ul>
+                                {joinedEvents.map((ev) => (
+                                    <li key={ev.externalEventId} style={{ marginBottom: '0.4rem' }}>
+                                        <strong>{ev.eventName}</strong> ({ev.currentAttendanceCount}/{ev.maxCapacity} spots){' '}
+                                        <button onClick={() => handleLeaveEvent(ev.externalEventId)}>Leave</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <div style={{ marginTop: '1rem' }}>
+                            <OrganizerNotifications organizerId={selectedUserId} type="user" />
                         </div>
-                        <button type="submit">Create User Event</button>
-                    </form>
-                </section>
 
-                {/* My Joined & Hosted Events Summary */}
-                <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
-                    <h3>My Activity</h3>
-
-                    <h4>Events I'm Attending ({joinedEvents.length})</h4>
-                    {joinedEvents.length === 0 ? (
-                        <p style={{ fontSize: '0.9rem', color: '#666' }}>Not registered for any events yet.</p>
-                    ) : (
-                        <ul>
-                            {joinedEvents.map((ev) => (
-                                <li key={ev.externalEventId} style={{ marginBottom: '0.4rem' }}>
-                                    <strong>{ev.eventName}</strong> ({ev.currentAttendanceCount}/{ev.maxCapacity} spots){' '}
-                                    <button onClick={() => handleLeaveEvent(ev.externalEventId)}>Leave</button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    <div style={{ marginTop: '1rem' }}>
-                        <OrganizerNotifications organizerId={selectedUserId} type="user" />
-                    </div>
-
-                    <h4>Events I Created ({hostedEvents.length})</h4>
-                    {hostedEvents.length === 0 ? (
-                        <p style={{ fontSize: '0.9rem', color: '#666' }}>You haven't hosted any events.</p>
-                    ) : (
-                        <ul>
-                            {hostedEvents.map((ev) => (
-                                <li key={ev.externalEventId} style={{ marginBottom: '0.4rem' }}>
-                                    <strong>{ev.eventName}</strong> — {ev.currentAttendanceCount}/{ev.maxCapacity} attending
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </section>
-            </div>
+                        <h4>Events I Created ({hostedEvents.length})</h4>
+                        {hostedEvents.length === 0 ? (
+                            <p style={{ fontSize: '0.9rem', color: '#666' }}>You haven't hosted any events.</p>
+                        ) : (
+                            <ul>
+                                {hostedEvents.map((ev) => (
+                                    <li key={ev.externalEventId} style={{ marginBottom: '0.4rem' }}>
+                                        <strong>{ev.eventName}</strong> — {ev.currentAttendanceCount}/{ev.maxCapacity} attending
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </section>
+                </div>
+            ) : (
+                <div
+                    style={{
+                        padding: '1rem 1.25rem',
+                        backgroundColor: '#eff6ff',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: '6px',
+                        marginBottom: '1.5rem',
+                        color: '#1e3a8a',
+                    }}
+                >
+                    You are browsing as a guest. <strong>Sign in</strong> to join events or create your own community events.
+                </div>
+            )}
 
             {/* Global Public Event Feed */}
             <section>
@@ -330,9 +349,11 @@ export const UserPortal: React.FC<UserPortalProps> = ({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {allEvents.map((event) => {
                             const isJoined = joinedEventIds.has(event.externalEventId);
-                            const isOrganizer =
-                                event.eventOrganizer === selectedUserId ||
-                                event.externalUserId === selectedUserId;
+                            const isOrganizer = Boolean(
+                                selectedUserId &&
+                                (event.eventOrganizer === selectedUserId ||
+                                    event.externalUserId === selectedUserId)
+                            );
                             const isVendorEvent = Boolean(event.externalVendorId);
                             const organizer = resolveOrganizerInfo(event);
 
@@ -439,7 +460,20 @@ export const UserPortal: React.FC<UserPortalProps> = ({
                                                 </div>
 
                                                 <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                                                    {isOrganizer ? (
+                                                    {!selectedUserId ? (
+                                                        <span
+                                                            style={{
+                                                                fontSize: '0.85rem',
+                                                                color: '#64748b',
+                                                                alignSelf: 'center',
+                                                                padding: '0.35rem 0.65rem',
+                                                                backgroundColor: '#f1f5f9',
+                                                                borderRadius: '4px',
+                                                            }}
+                                                        >
+                                                            Sign in to join
+                                                        </span>
+                                                    ) : isOrganizer ? (
                                                         <button
                                                             disabled
                                                             title="You cannot join an event you organized"

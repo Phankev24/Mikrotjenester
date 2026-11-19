@@ -13,13 +13,37 @@ const emptyUserForm = { username: '', password: '', firstName: '', lastName: '',
 export default function UserPage() {
     const navigate = useNavigate();
     const { user: loggedInUser, token, login, logout } = useAuth();
+
+    const [isAdminMode, setIsAdminMode] = useState<boolean>(
+        localStorage.getItem('epm_role') === 'SENSOR'
+    );
     const [users, setUsers] = useState<UserResponseDto[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<number | null>(loggedInUser?.id ?? null);
 
     const handleLogout = () => {
+        localStorage.removeItem('epm_role');
         logout();
         navigate('/login');
     };
+
+    const handleGoToEvents = () => {
+        if (!isAdminMode) {
+            localStorage.removeItem('epm_role');
+        }
+        navigate('/events');
+    };
+
+    const toggleAdminMode = () => {
+        if (isAdminMode) {
+            localStorage.removeItem('epm_role');
+            setIsAdminMode(false);
+            setSelectedUserId(loggedInUser?.id ?? null);
+        } else {
+            localStorage.setItem('epm_role', 'SENSOR');
+            setIsAdminMode(true);
+        }
+    };
+
     const [events, setEvents] = useState<EventDto[]>([]);
     const [joinedEventIds, setJoinedEventIds] = useState<Set<string>>(new Set());
 
@@ -29,7 +53,9 @@ export default function UserPage() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const selectedUser = users.find((u) => u.id === selectedUserId) ?? null;
+    // In normal mode, lock selection to loggedInUser; in Admin mode, allow inspecting any user
+    const effectiveUserId = isAdminMode ? selectedUserId : (loggedInUser?.id ?? selectedUserId);
+    const selectedUser = users.find((u) => u.id === effectiveUserId) ?? null;
     const isOwnProfile = selectedUser !== null && selectedUser.id === loggedInUser?.id;
 
     const loadUsers = async (keepSelection?: number | null) => {
@@ -43,8 +69,8 @@ export default function UserPage() {
                 return;
             }
             setUsers(data);
-            const target = keepSelection ?? selectedUserId;
-            setSelectedUserId(data.some((u) => u.id === target) ? target : (data[0]?.id ?? null));
+            const target = keepSelection ?? effectiveUserId;
+            setSelectedUserId(data.some((u) => u.id === target) ? target : (loggedInUser?.id ?? data[0]?.id ?? null));
         } catch (err) {
             console.error(err);
             setError('Failed to load users. Ensure the User service (8081) is running.');
@@ -79,7 +105,7 @@ export default function UserPage() {
     useEffect(() => {
         setEditing(false);
         setUserForm(emptyUserForm);
-    }, [selectedUserId]);
+    }, [effectiveUserId]);
 
     const selectedUserExists = selectedUser !== null;
 
@@ -89,7 +115,7 @@ export default function UserPage() {
             setEvents([]);
             setJoinedEventIds(new Set());
         }
-    }, [selectedUserId, selectedUserExists]);
+    }, [effectiveUserId, selectedUserExists]);
 
     useEffect(() => {
         const refresh = () => {
@@ -160,8 +186,13 @@ export default function UserPage() {
     const handleDelete = () => {
         if (!selectedUser || !window.confirm(`Delete ${selectedUser.username}?`)) return;
         run(async () => {
+            const deletedOwnAccount = selectedUser.id === loggedInUser?.id;
             await userApi.deleteUser(selectedUser.id);
-            await loadUsers(null);
+            if (deletedOwnAccount) {
+                handleLogout();
+                return;
+            }
+            await loadUsers(loggedInUser?.id ?? null);
         });
     };
 
@@ -195,29 +226,76 @@ export default function UserPage() {
                             ← Home
                         </Link>
                         <strong>User Portal</strong>
+                        <button
+                            type="button"
+                            className="user-primary-btn"
+                            onClick={handleGoToEvents}
+                            style={{ marginLeft: '0.75rem' }}
+                        >
+                            View / Create Events →
+                        </button>
                     </div>
                     <div className="user-header-right">
-                        <label>
-                            Acting as User:{' '}
-                            <select
-                                className="user-picker-select"
-                                value={selectedUserId ?? ''}
-                                onChange={(e) => setSelectedUserId(e.target.value ? Number(e.target.value) : null)}
-                            >
-                                {users.map((u) => (
-                                    <option key={u.id} value={u.id}>
-                                        {u.firstName} {u.lastName} ({u.username})
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                        <span className="user-signed-in">Signed in as <strong>{loggedInUser?.username}</strong></span>
+                        {/* Only show account switcher in Admin / Sensor Mode */}
+                        {isAdminMode && (
+                            <label>
+                                Acting as User:{' '}
+                                <select
+                                    className="user-picker-select"
+                                    value={effectiveUserId ?? ''}
+                                    onChange={(e) => setSelectedUserId(e.target.value ? Number(e.target.value) : null)}
+                                >
+                                    {users.map((u) => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.firstName} {u.lastName} ({u.username})
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
+
+                        <span className="user-signed-in">
+                            Signed in as <strong>{loggedInUser?.username}</strong>
+                        </span>
+
+                        <button
+                            type="button"
+                            onClick={toggleAdminMode}
+                            style={{
+                                padding: '0.35rem 0.7rem',
+                                fontSize: '0.8rem',
+                                backgroundColor: isAdminMode ? '#dc2626' : '#1e293b',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            {isAdminMode ? 'Exit Admin Mode' : 'Admin Mode'}
+                        </button>
+
                         <button onClick={handleLogout}>Log out</button>
                     </div>
                 </div>
             </header>
 
             <main className="user-main">
+                {isAdminMode && (
+                    <div
+                        style={{
+                            padding: '0.65rem 1rem',
+                            backgroundColor: '#fef3c7',
+                            border: '1px solid #f59e0b',
+                            borderRadius: '6px',
+                            marginBottom: '1rem',
+                            fontSize: '0.9rem',
+                            color: '#92400e',
+                        }}
+                    >
+                        <strong>Admin / Sensor Mode active:</strong> You can inspect, edit, or delete any user account from the top dropdown.
+                    </div>
+                )}
+
                 {error && <div className="user-error">{error}</div>}
 
                 {loading ? (
@@ -236,14 +314,16 @@ export default function UserPage() {
                                             <span className="user-handle">@{selectedUser.username}</span>
                                         </div>
                                         <div className="user-actions">
-                                            {isOwnProfile && !editing && (
+                                            {(isOwnProfile || isAdminMode) && !editing && (
                                                 <button className="user-primary-btn" onClick={startEdit}>
                                                     Edit profile
                                                 </button>
                                             )}
-                                            <button className="user-danger-btn" onClick={handleDelete}>
-                                                Delete
-                                            </button>
+                                            {(isOwnProfile || isAdminMode) && (
+                                                <button className="user-danger-btn" onClick={handleDelete}>
+                                                    Delete
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
@@ -301,7 +381,24 @@ export default function UserPage() {
                         )}
 
                         <section>
-                            <h2>Events ({events.length})</h2>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '0.75rem',
+                                }}
+                            >
+                                <h2 style={{ margin: 0 }}>Events ({events.length})</h2>
+                                <button
+                                    type="button"
+                                    className="user-primary-btn"
+                                    onClick={handleGoToEvents}
+                                >
+                                    + Create / Browse Events
+                                </button>
+                            </div>
+
                             {events.length === 0 ? (
                                 <p className="user-empty">No events joined or created.</p>
                             ) : (
