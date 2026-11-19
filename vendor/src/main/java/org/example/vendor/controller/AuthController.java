@@ -1,32 +1,37 @@
 package org.example.vendor.controller;
 
 import jakarta.validation.Valid;
-import org.example.vendor.dto.GoogleLoginRequest;
 import org.example.vendor.dto.LoginRequest;
 import org.example.vendor.dto.LoginResponse;
-import org.example.vendor.service.VendorService;
-import org.example.vendor.vendor.Vendor;
-import org.springframework.web.bind.annotation.*;
+import org.example.vendor.service.AuthService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.example.vendor.dto.VendorResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/vendors")
 public class AuthController {
 
-    private final VendorService vendorService;
+    private final AuthService authService;
 
-    public AuthController(VendorService vendorService) {
-        this.vendorService = vendorService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        Vendor vendor = vendorService.login(request.email(), request.password());
-        return new LoginResponse(vendor.getExternalId(), vendor.getCompanyName(), vendor.getEmail());
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/google")
-    public LoginResponse google(@Valid @RequestBody GoogleLoginRequest request) {
-        Vendor vendor = vendorService.loginWithGoogle(request.idToken());
-        return new LoginResponse(vendor.getExternalId(), vendor.getCompanyName(), vendor.getEmail());
+    @GetMapping("/me")
+    public ResponseEntity<VendorResponse> me(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
+        return ResponseEntity.ok(authService.meFromAuthorization(authorization));
     }
 }

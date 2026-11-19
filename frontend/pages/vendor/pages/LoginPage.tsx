@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
 import { ApiError } from '../../../src/api/api';
 import { vendorApi } from '../services/VendorApi';
 import type { LoginResponse } from '../types/Login';
@@ -34,14 +33,12 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
         }
     };
 
-    const handleGoogle = async (idToken?: string) => {
-        if (!idToken) { setError('Google ga ikke noe token'); return; }
-        setError(null);
-        try {
-            onLogin(await vendorApi.googleLogin(idToken));
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Google-innlogging feilet');
-        }
+    const handleGoogleLogin = () => {
+        window.location.href = 'http://localhost:8082/api/vendors/oauth2/authorization/google';
+    };
+
+    const handleGitHubLogin = () => {
+        window.location.href = 'http://localhost:8082/api/vendors/oauth2/authorization/github';
     };
 
     return (
@@ -49,23 +46,39 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
             <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: 8, width: 340, boxShadow: '0 2px 10px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <h1 style={{ margin: 0 }}>Vendor-innlogging</h1>
                 {notice && <p style={{ color: '#15803d', margin: 0 }}>{notice}</p>}
+
                 <label>E-post
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus style={input} />
                 </label>
                 <label>Passord
-                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} required style={input} />
+                    <input type="password" minLength={8} maxLength={72} value={password} onChange={e => setPassword(e.target.value)} required style={input} />
                 </label>
+
                 {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
+
                 <button type="submit" disabled={busy} style={{ background: '#2563eb', color: '#fff', padding: '0.75rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>
                     {busy ? 'Logger inn...' : 'Logg inn'}
                 </button>
 
-                <div style={{ textAlign: 'center', color: '#666' }}>eller</div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <GoogleLogin
-                        onSuccess={cred => handleGoogle(cred.credential)}
-                        onError={() => setError('Google-innlogging feilet')}
-                    />
+                <div style={{ textAlign: 'center', color: '#666', fontSize: '0.9rem' }}>eller logg inn med</div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                    <button
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '0.5rem', background: '#fff', color: '#1f2937', border: '1px solid #d1d5db', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                        Google Login
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleGitHubLogin}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '0.5rem', background: '#24292e', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                        <img src="/icons/github.svg" alt="GitHub" width="18" height="18" style={{ filter: 'invert(1)' }} />
+                        GitHub Login
+                    </button>
                 </div>
 
                 <button type="button" onClick={onRegister} style={linkButton}>Ny vendor? Registrer deg</button>

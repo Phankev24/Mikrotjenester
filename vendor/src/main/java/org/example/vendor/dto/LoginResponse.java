@@ -5,5 +5,7 @@ import java.util.UUID;
 public record LoginResponse(
         UUID externalId,
         String companyName,
-        String email
-) {}
+        String email,
+        String token
+) {
+}

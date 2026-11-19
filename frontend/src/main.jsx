@@ -26,6 +26,7 @@ ReactDOM.createRoot(getElementByIdOrThrow('root')).render(
                 {/* Vendor-modulen har egne underruter */}
                 <Route path="/vendor/*" element={<VendorApp />} />
 
+
                 {/* Auth */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />

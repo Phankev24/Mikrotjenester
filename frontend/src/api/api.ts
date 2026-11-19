@@ -1,4 +1,4 @@
-export const API = 'http://localhost:8082';
+export const API = 'http://localhost:8100';
 
 /** Feil med HTTP-status, slik at sidene kan skille mellom f.eks. 401 og 404. */
 export class ApiError extends Error {

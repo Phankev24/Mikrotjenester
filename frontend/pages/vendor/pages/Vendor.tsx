@@ -24,11 +24,11 @@ export default function VendorPage() {
     const [website, setWebsite] = useState('');
     const [description, setDescription] = useState('');
 
-    // Hent alle vendorer (GET)
+    // Hent alle vendorer (GET) via Gateway på port 8100
     const fetchVendors = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8082/api/vendors');
+            const response = await fetch('http://localhost:8100/api/vendors');
             if (!response.ok) throw new Error('Klarte ikke å hente vendorer fra serveren');
             const data = await response.json();
             setVendors(data);
@@ -44,11 +44,18 @@ export default function VendorPage() {
         fetchVendors();
     }, []);
 
-    // Opprett ny vendor (POST)
+    // Opprett ny vendor (POST) via Gateway på port 8100
     const handleCreateVendor = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Valider passordlengde (8-72 tegn)
+        if (password.length < 8 || password.length > 72) {
+            alert('Passordet må være mellom 8 og 72 tegn.');
+            return;
+        }
+
         try {
-            const response = await fetch('http://localhost:8082/api/vendors', {
+            const response = await fetch('http://localhost:8100/api/vendors', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,8 +111,16 @@ export default function VendorPage() {
                         <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
                     </div>
                     <div>
-                        <label>Passord:</label><br />
-                        <input type="password" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
+                        <label>Passord (8-72 tegn):</label><br />
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                            minLength={8}
+                            maxLength={72}
+                            style={{ width: '100%', padding: '0.5rem' }}
+                        />
                     </div>
                     <div>
                         <label>Telefon:</label><br />
