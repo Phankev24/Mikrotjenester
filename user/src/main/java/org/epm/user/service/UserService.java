@@ -1,5 +1,6 @@
 package org.epm.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.epm.user.client.UserClient;
 import org.epm.user.dto.UserCreateDto;
 import org.epm.user.dto.UserResponseDto;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -49,27 +51,32 @@ public class UserService {
     public UserResponseDto findByUserId(Long id) {
         return userRepo.findById(id)
                 .map(userResponseMapper::toDTO)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with this id: " + id));
+                .orElseThrow(() -> reject(HttpStatus.NOT_FOUND, "User not found with this id: " + id));
     }
 
     public UserResponseDto findByExternalUserId(UUID externalUserId) {
         return userRepo.findByExternalUserId(externalUserId)
                 .map(userResponseMapper::toDTO)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with this external id: " + externalUserId));
+                .orElseThrow(() -> reject(HttpStatus.NOT_FOUND, "User not found with this external id: " + externalUserId));
     }
 
     public UserResponseDto createUser(UserCreateDto userCreateDto) {
+        if (userRepo.existsByUsername(userCreateDto.username())) {
+            throw reject(HttpStatus.CONFLICT, "Username is already taken: " + userCreateDto.username());
+        }
         User userEntity = userCreateMapper.toEntity(userCreateDto);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         User savedUser = userRepo.save(userEntity);
+        log.info("User created: {} ({})", savedUser.getUsername(), savedUser.getExternalUserId());
         return userResponseMapper.toDTO(savedUser);
     }
 
     public void deleteById(Long id) {
         if (!userRepo.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with this id: " + id);
+            throw reject(HttpStatus.NOT_FOUND, "User not found with this id: " + id);
         }
         userRepo.deleteById(id);
+        log.info("User deleted: id {}", id);
     }
 
     public UserWithEventsDto getUserWithEvents(Long id) {
@@ -78,6 +85,7 @@ public class UserService {
                 .stream()
                 .filter(event -> user.externalUserId().equals(event.externalUserId()))
                 .toList();
+        log.info("Found {} events for user {}", events.size(), user.externalUserId());
         return new UserWithEventsDto(user, events);
     }
 
@@ -90,14 +98,18 @@ public class UserService {
                 dto.eventLocation(),
                 dto.eventAttendance()
         );
+        log.info("User {} creates event '{}' through the event service", user.externalUserId(), dto.eventName());
         return userClient.createEvent(user.externalUserId(), eventCreateDto);
     }
 
     public UserResponseDto updatedUser(Long id, UserUpdateDto userUpdateDto){
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with this id: " + id));
+                .orElseThrow(() -> reject(HttpStatus.NOT_FOUND, "User not found with this id: " + id));
 
         if(userUpdateDto.username() != null){
+            if (!userUpdateDto.username().equals(user.getUsername()) && userRepo.existsByUsername(userUpdateDto.username())) {
+                throw reject(HttpStatus.CONFLICT, "Username is already taken: " + userUpdateDto.username());
+            }
             user.setUsername(userUpdateDto.username());
         }
 
@@ -130,7 +142,13 @@ public class UserService {
         }
 
         User updatedUser = userRepo.save(user);
+        log.info("User updated: id {}", id);
 
         return userResponseMapper.toDTO(updatedUser);
+    }
+
+    private ResponseStatusException reject(HttpStatus status, String message) {
+        log.warn("{}", message);
+        return new ResponseStatusException(status, message);
     }
 }

@@ -17,7 +17,13 @@ public class EventKafkaProducer {
 
     public void publishEventJoined(EventJoinedEvent payload){
         String json = objectMapper.writeValueAsString(payload);
-        kafkaTemplate.send(TOPIC, payload.externalEventId().toString(), json);
-        log.info("Published event-joined notification to kafka: {}", json);
+        String key = payload.externalEventId().toString();
+        kafkaTemplate.send(TOPIC, key, json).whenComplete((result, error) -> {
+            if (error != null) {
+                log.error("Failed to publish event-joined message for event {} to topic {}", key, TOPIC, error);
+            } else {
+                log.info("Published event-joined message for event {} to topic {}", key, TOPIC);
+            }
+        });
     }
 }

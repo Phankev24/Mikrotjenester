@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -21,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     private final SecretKey key;
 
@@ -40,6 +44,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         String header = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (header == null || !header.startsWith("Bearer ")) {
+            log.warn("Rejected {} {}: missing bearer token", request.getMethod(), path);
             return unauthorized(exchange);
         }
 
@@ -55,6 +60,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                     .build();
             return chain.filter(exchange.mutate().request(authenticated).build());
         } catch (JwtException | IllegalArgumentException e) {
+            log.warn("Rejected {} {}: invalid or expired token ({})", request.getMethod(), path, e.getClass().getSimpleName());
             return unauthorized(exchange);
         }
     }

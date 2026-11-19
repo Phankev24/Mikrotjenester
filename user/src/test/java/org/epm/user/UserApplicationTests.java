@@ -20,7 +20,7 @@ class UserApplicationTests extends IntegrationTestBase {
         Integer applied = jdbcTemplate.queryForObject(
                 "select count(*) from flyway_schema_history where success", Integer.class);
 
-        assertThat(applied).isEqualTo(6);
+        assertThat(applied).isEqualTo(7);
     }
 
     @Test

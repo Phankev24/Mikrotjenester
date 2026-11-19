@@ -1,5 +1,6 @@
 package org.example.vendor.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.web.SecurityFilterChain;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -23,10 +25,12 @@ public class SecurityConfig {
             @Value("${GOOGLE_SECRET:unset}") String googleSecret,
             @Value("${app.oauth.redirect-base:http://localhost:8100}") String redirectBase) {
 
-        System.out.println("=================================");
-        System.out.println("GOOGLE_ID=" + googleId);
-        System.out.println("GOOGLE_SECRET_EMPTY=" + googleSecret.isBlank());
-        System.out.println("=================================");
+        if (googleId.isBlank() || "unset".equals(googleId) || googleSecret.isBlank() || "unset".equals(googleSecret)) {
+            log.warn("Google OAuth login is not configured, set GOOGLE_ID and GOOGLE_SECRET to enable it");
+        }
+        if (githubId.isBlank() || "unset".equals(githubId) || githubSecret.isBlank() || "unset".equals(githubSecret)) {
+            log.warn("GitHub OAuth login is not configured, set GITHUB_ID and GITHUB_SECRET to enable it");
+        }
 
         ClientRegistration github = CommonOAuth2Provider.GITHUB.getBuilder("github")
                 .clientId(githubId.isBlank() ? "unset" : githubId)

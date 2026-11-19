@@ -1,5 +1,6 @@
 package org.epm.user.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
+@Slf4j
 @Configuration
 @Profile("dev")
 public class Dataintializer {
@@ -30,6 +32,7 @@ public class Dataintializer {
 
             userRepo.save(user1);
             userRepo.save(user2);
+            log.info("Seeded demo users {} and {}", user1.getUsername(), user2.getUsername());
 
         };
     }

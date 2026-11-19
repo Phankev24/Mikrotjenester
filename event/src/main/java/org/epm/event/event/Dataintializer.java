@@ -1,5 +1,6 @@
 package org.epm.event.event;
 
+import lombok.extern.slf4j.Slf4j;
 import org.epm.event.enumeration.EventCategory;
 import org.epm.event.repository.EventRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 
+@Slf4j
 @Configuration
 @Profile("dev")
 public class Dataintializer {
@@ -47,7 +49,7 @@ public class Dataintializer {
             eventRepository.save(event1);
             eventRepository.save(event2);
 
-            System.out.println("Sample H2 data initialized");
+            log.info("Seeded sample events {} and {}", event1.getEventName(), event2.getEventName());
         };
     }
 }

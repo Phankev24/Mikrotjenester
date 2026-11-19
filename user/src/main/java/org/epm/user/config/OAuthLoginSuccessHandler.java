@@ -2,6 +2,7 @@ package org.epm.user.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.epm.user.service.OAuthUserService;
 import org.epm.user.service.TokenService;
 import org.epm.user.user.User;
@@ -14,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -37,6 +39,7 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         User user = oAuthUserService.findOrCreate(provider, oauth.getPrincipal());
         String token = tokenService.issueToken(user, provider.toUpperCase());
+        log.info("User {} ({}) logged in through {}", user.getUsername(), user.getExternalUserId(), provider);
 
         String target = UriComponentsBuilder.fromUriString(clientUrl)
                 .path("/oauth-callback")

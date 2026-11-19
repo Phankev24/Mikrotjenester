@@ -1,5 +1,6 @@
 package org.epm.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.epm.user.dto.LoginRequestDto;
 import org.epm.user.dto.LoginResponseDto;
 import org.epm.user.dto.UserResponseDto;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -31,13 +33,18 @@ public class AuthService {
     public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepo.findByUsername(request.username())
                 .filter(u -> passwordEncoder.matches(request.password(), u.getPassword()))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+                .orElseThrow(() -> {
+                    log.warn("Login failed for username {}", request.username());
+                    return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+                });
 
+        log.info("User logged in: {} ({})", user.getUsername(), user.getExternalUserId());
         return new LoginResponseDto(tokenService.issueToken(user, "LOCAL"), userResponseMapper.toDTO(user));
     }
 
     public UserResponseDto meFromAuthorization(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
+            log.warn("Profile requested without a bearer token");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing bearer token");
         }
         return me(tokenService.subjectOf(authorization.substring("Bearer ".length())));
@@ -46,6 +53,9 @@ public class AuthService {
     public UserResponseDto me(UUID externalUserId) {
         return userRepo.findByExternalUserId(externalUserId)
                 .map(userResponseMapper::toDTO)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unknown user"));
+                .orElseThrow(() -> {
+                    log.warn("Profile requested for unknown user {}", externalUserId);
+                    return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unknown user");
+                });
     }
 }

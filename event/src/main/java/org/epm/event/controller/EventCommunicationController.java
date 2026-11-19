@@ -1,6 +1,7 @@
 package org.epm.event.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.epm.event.client.EventClient;
 import org.epm.event.dto.event.EventResponseDto;
 import org.epm.event.dto.user.EventAttendeeOverviewDto;
@@ -12,12 +13,14 @@ import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
 import org.epm.event.service.EventAttendanceService;
 import org.epm.event.service.EventService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/api/client/event")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -67,6 +71,10 @@ public class EventCommunicationController {
     @GetMapping("/{externalId}/vendorEvent")
     public ResponseEntity<EventVendorResponseDto> getVendorWithEvents(@PathVariable UUID externalId){
         VendorResponseDto vendorDto = eventClient.getVendorByExternalId(externalId);
+        if (vendorDto == null) {
+            log.warn("Vendor not found: {}", externalId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found: " + externalId);
+        }
         List<EventResponseDto> events = eventService.getEventByVendorUUID(externalId);
 
         return ResponseEntity.ok(new EventVendorResponseDto(vendorDto, events));

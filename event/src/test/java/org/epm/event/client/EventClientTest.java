@@ -4,16 +4,23 @@ import org.epm.event.dto.user.UserResponseDto;
 import org.epm.event.dto.vendor.VendorResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.springframework.boot.restclient.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.http.HttpMethod.GET;
 
@@ -71,6 +78,59 @@ class EventClientTest {
 
         assertThat(vendor.companyName()).isEqualTo("Catering AS");
         server.verify();
+    }
+
+    @Test
+    void getUserByExternalIdReturnsNullWhenTheUserServiceAnswers404() {
+        server.expect(requestTo("http://user.test/api/user/external/" + USER_ID))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertThat(client.getUserByExternalId(USER_ID)).isNull();
+        server.verify();
+    }
+
+    @Test
+    void getVendorByExternalIdReturnsNullWhenTheVendorServiceAnswers404() {
+        server.expect(requestTo("http://vendor.test/api/vendors/" + VENDOR_ID))
+                .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertThat(client.getVendorByExternalId(VENDOR_ID)).isNull();
+    }
+
+    @Test
+    void listCallsTurn404Into404() {
+        server.expect(requestTo("http://user.test/api/user")).andRespond(withStatus(HttpStatus.NOT_FOUND));
+
+        assertStatus(() -> client.getUsers(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void otherClientErrorsKeepTheirStatus() {
+        server.expect(requestTo("http://user.test/api/user/external/" + USER_ID))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
+
+        assertStatus(() -> client.getUserByExternalId(USER_ID), HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void aFailingServiceBecomes502() {
+        server.expect(requestTo("http://user.test/api/user/external/" + USER_ID)).andRespond(withServerError());
+
+        assertStatus(() -> client.getUserByExternalId(USER_ID), HttpStatus.BAD_GATEWAY);
+    }
+
+    @Test
+    void anUnreachableServiceBecomes503() {
+        server.expect(requestTo("http://vendor.test/api/vendors")).andRespond(request -> {
+            throw new IOException("connection refused");
+        });
+
+        assertStatus(() -> client.getVendors(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    private static void assertStatus(ThrowingCallable call, HttpStatus status) {
+        assertThatThrownBy(call).isInstanceOfSatisfying(ResponseStatusException.class,
+                e -> assertThat(e.getStatusCode()).isEqualTo(status));
     }
 
     @Test

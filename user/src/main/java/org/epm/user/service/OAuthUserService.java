@@ -1,5 +1,6 @@
 package org.epm.user.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.epm.user.user.User;
 import org.epm.user.user.UserRepo;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Service
 public class OAuthUserService {
 
@@ -27,7 +29,10 @@ public class OAuthUserService {
         return switch (provider) {
             case "github" -> findOrCreateGithubUser(principal);
             case "google" -> findOrCreateGoogleUser(principal);
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported provider: " + provider);
+            default -> {
+                log.warn("OAuth login rejected, unsupported provider {}", provider);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported provider: " + provider);
+            }
         };
     }
 
@@ -46,6 +51,7 @@ public class OAuthUserService {
             user.setFirstName(space > 0 ? displayName.substring(0, space) : displayName);
             user.setLastName(space > 0 ? displayName.substring(space + 1) : null);
 
+            log.info("Creating user {} from GitHub login", user.getUsername());
             return userRepo.save(user);
         });
     }
@@ -67,6 +73,7 @@ public class OAuthUserService {
             user.setFirstName(givenName);
             user.setLastName(familyName);
 
+            log.info("Creating user {} from Google login", user.getUsername());
             return userRepo.save(user);
         });
     }

@@ -69,6 +69,8 @@ app:
 
 springdoc:
   swagger-ui:
+    config-url: /vendor/v3/api-docs/swagger-config
+    url: /vendor/v3/api-docs
     oauth:
       client-id: swagger
 

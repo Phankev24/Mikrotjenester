@@ -3,6 +3,7 @@ package org.example.vendor.service;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.example.vendor.vendor.Vendor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class TokenService {
 
@@ -51,6 +53,7 @@ public class TokenService {
                     .getSubject();
             return UUID.fromString(subject);
         } catch (JwtException | IllegalArgumentException e) {
+            log.warn("Rejected vendor token: {}", e.getClass().getSimpleName());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
     }

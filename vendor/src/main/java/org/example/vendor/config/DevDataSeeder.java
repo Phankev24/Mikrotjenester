@@ -2,8 +2,10 @@ package org.example.vendor.config;
 
 import org.example.vendor.repository.VendorRepo;
 import org.example.vendor.vendor.Vendor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.UUID;
  * The UUIDs are fixed, so they are the same after every restart. That keeps Swagger requests,
  * saved test calls, and events in the event service (which store these ids) valid.
  */
+@Slf4j
 @Component
 @Profile("dev")
 public class DevDataSeeder implements CommandLineRunner {
@@ -25,15 +28,20 @@ public class DevDataSeeder implements CommandLineRunner {
     public static final UUID LYS_OG_TONE   = UUID.fromString("00000000-0000-0000-0000-000000000004");
 
     private final VendorRepo vendorRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public DevDataSeeder(VendorRepo vendorRepo) {
+    public DevDataSeeder(VendorRepo vendorRepo, PasswordEncoder passwordEncoder) {
         this.vendorRepo = vendorRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        if (vendorRepo.count() > 0) return;
-        String pw = "password123";   // plain text, same dev password for all samples
+        if (vendorRepo.count() > 0) {
+            log.info("Vendor seed skipped, vendors already exist");
+            return;
+        }
+        String pw = passwordEncoder.encode("password123");
         vendorRepo.saveAll(List.of(
                 new Vendor(OSLO_CATERING, "Oslo Catering", pw, "post@oslocatering.example", "+47 22 00 00 01",
                         "https://oslocatering.example", "Buffets and finger food for up to 200 guests."),
@@ -44,5 +52,6 @@ public class DevDataSeeder implements CommandLineRunner {
                 new Vendor(LYS_OG_TONE, "Lys og Tone", pw, "info@lysogtone.example", "+47 22 00 00 04",
                         "https://lysogtone.example", "Lighting and stage rental.")
         ));
+        log.info("Seeded 4 sample vendors");
     }
 }

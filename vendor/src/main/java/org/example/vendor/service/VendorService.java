@@ -1,5 +1,6 @@
 package org.example.vendor.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.vendor.client.EventClient;
 import org.example.vendor.client.EventDto;
 import org.example.vendor.client.EventPayload;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class VendorService {
 
@@ -43,7 +45,9 @@ public class VendorService {
                 passwordEncoder.encode(
                         vendor.getPassword()));
 
-        return vendorRepo.save(vendor);
+        Vendor saved = vendorRepo.save(vendor);
+        log.info("Vendor created: {} ({})", vendor.getCompanyName(), vendor.getExternalId());
+        return saved;
     }
 
     public List<Vendor> getAllVendors() {
@@ -86,24 +90,30 @@ public class VendorService {
             vendor.setDescription(patch.getDescription());
         }
 
-        return vendorRepo.save(vendor);
+        Vendor saved = vendorRepo.save(vendor);
+        log.info("Vendor updated: {}", externalId);
+        return saved;
     }
 
     public Vendor login(String email, String password) {
         Vendor vendor = vendorRepo.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.UNAUTHORIZED,
-                                "Invalid credentials"));
+                .orElseThrow(() -> {
+                    log.warn("Vendor login failed, unknown email {}", email);
+                    return new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED,
+                            "Invalid credentials");
+                });
 
         boolean valid = passwordEncoder.matches(password, vendor.getPassword());
 
         if (!valid) {
+            log.warn("Vendor login failed, wrong password for {}", email);
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Invalid credentials");
         }
 
+        log.info("Vendor logged in: {}", vendor.getExternalId());
         return vendor;
     }
 
@@ -114,20 +124,25 @@ public class VendorService {
     @Transactional
     public Vendor loginWithGoogle(String idToken) {
         GoogleTokenVerifier.GoogleUser g = googleVerifier.verify(idToken);
-        return vendorRepo.findByEmail(g.email()).orElseGet(() -> vendorRepo.save(new Vendor(
-                g.name() != null && !g.name().isBlank() ? g.name() : g.email(),
-                passwordEncoder.encode(UUID.randomUUID().toString()),
-                g.email(), null, null, null)));
+        return vendorRepo.findByEmail(g.email()).orElseGet(() -> {
+            log.info("Creating vendor from Google login: {}", g.email());
+            return vendorRepo.save(new Vendor(
+                    g.name() != null && !g.name().isBlank() ? g.name() : g.email(),
+                    passwordEncoder.encode(UUID.randomUUID().toString()),
+                    g.email(), null, null, null));
+        });
     }
 
     public EventDto postEvent(UUID vendorExternalId, EventPayload payload) {
         find(vendorExternalId);
+        log.info("Vendor {} posts an event to the event service", vendorExternalId);
         return eventClient.createVendorEvent(vendorExternalId, payload);
     }
 
     @Transactional
     public void deleteVendor(UUID externalId) {
         vendorRepo.delete(find(externalId));
+        log.info("Vendor deleted: {}", externalId);
     }
 
     private Vendor find(UUID externalId) {

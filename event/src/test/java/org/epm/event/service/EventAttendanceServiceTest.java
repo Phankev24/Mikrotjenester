@@ -19,6 +19,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,6 +90,55 @@ class EventAttendanceServiceTest {
         assertThat(message.getValue().attendeeName()).isEqualTo("Kari Nordmann");
         assertThat(message.getValue().attendeeEmail()).isEqualTo("kari@example.com");
         assertThat(message.getValue().joinedAt()).isNotNull();
+    }
+
+    private void aKnownUserAndAnOpenEvent() {
+        when(eventClient.getUserByExternalId(KARI_ID)).thenReturn(TestData.user(KARI_ID, "Kari"));
+        when(eventRepository.findByExternalEventIdForUpdate(EVENT_ID)).thenReturn(Optional.of(event(2)));
+        when(eventAttendanceRepository.existsByExternalEventIdAndExternalUserId(EVENT_ID, KARI_ID)).thenReturn(false);
+        when(eventAttendanceRepository.countByExternalEventId(EVENT_ID)).thenReturn(0);
+    }
+
+    @Test
+    void registerAttendancePublishesOnlyAfterTheTransactionCommits() {
+        aKnownUserAndAnOpenEvent();
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            service.registerAttendance(EVENT_ID, KARI_ID);
+
+            verify(eventKafkaProducer, never()).publishEventJoined(any());
+
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(eventKafkaProducer).publishEventJoined(any(EventJoinedEvent.class));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    void registerAttendancePublishesNothingWhenTheTransactionRollsBack() {
+        aKnownUserAndAnOpenEvent();
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            service.registerAttendance(EVENT_ID, KARI_ID);
+
+            TransactionSynchronizationManager.getSynchronizations()
+                    .forEach(synchronization -> synchronization.afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK));
+
+            verify(eventKafkaProducer, never()).publishEventJoined(any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    void aFailingKafkaPublishDoesNotFailTheJoin() {
+        aKnownUserAndAnOpenEvent();
+        doThrow(new IllegalStateException("kafka down")).when(eventKafkaProducer).publishEventJoined(any());
+
+        service.registerAttendance(EVENT_ID, KARI_ID);
+
+        verify(eventAttendanceRepository).save(any(EventAttendance.class));
     }
 
     @Test

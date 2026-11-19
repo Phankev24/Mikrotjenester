@@ -1,5 +1,6 @@
 package org.example.vendor.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.vendor.vendor.Vendor;
 import org.example.vendor.repository.VendorRepo;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class OAuthVendorService {
 
@@ -25,7 +27,10 @@ public class OAuthVendorService {
         return switch (provider) {
             case "github" -> findOrCreateOAuthVendor(principal);
             case "google" -> findOrCreateOAuthVendor(principal);
-            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported provider: " + provider);
+            default -> {
+                log.warn("OAuth login rejected, unsupported provider {}", provider);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported provider: " + provider);
+            }
         };
     }
 
@@ -37,6 +42,7 @@ public class OAuthVendorService {
         String companyName = (name != null && !name.isBlank()) ? name : (login != null ? login : email);
 
         return vendorRepo.findByEmail(email).orElseGet(() -> {
+            log.info("Creating vendor from OAuth login: {}", email);
             String encodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
             Vendor vendor = new Vendor(companyName, encodedPassword, email, null, null, null);
             return vendorRepo.save(vendor);

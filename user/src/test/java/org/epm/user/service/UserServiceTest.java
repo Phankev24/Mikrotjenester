@@ -118,6 +118,17 @@ class UserServiceTest {
     }
 
     @Test
+    void createUserThrows409WhenTheUsernameIsTaken() {
+        when(userRepo.existsByUsername("ola")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.createUser(
+                new UserCreateDto("ola", "plain", "Ola", "Nordmann", "ola@example.com", "12345678", 30, "Male")))
+                .isInstanceOfSatisfying(ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        verify(userRepo, never()).save(any());
+    }
+
+    @Test
     void deleteByIdDeletesExistingUser() {
         when(userRepo.existsById(1L)).thenReturn(true);
 
@@ -184,6 +195,20 @@ class UserServiceTest {
         assertThat(existing.getFirstName()).isEqualTo("Ola");
         assertThat(existing.getAge()).isEqualTo(30);
         verify(passwordEncoder, never()).encode(anyString());
+    }
+
+    @Test
+    void updatedUserThrows409WhenTheNewUsernameBelongsToSomeoneElse() {
+        User existing = TestData.user(1L, OLA_ID, "ola");
+        when(userRepo.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepo.existsByUsername("kari")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.updatedUser(1L,
+                new UserUpdateDto("kari", null, null, null, null, null, null, null)))
+                .isInstanceOfSatisfying(ResponseStatusException.class,
+                        e -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.CONFLICT));
+        assertThat(existing.getUsername()).isEqualTo("ola");
+        verify(userRepo, never()).save(any());
     }
 
     @Test

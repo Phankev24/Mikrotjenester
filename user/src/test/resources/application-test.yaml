@@ -18,6 +18,8 @@ spring:
     enabled: true
 
   kafka:
+    admin:
+      auto-create: false
     listener:
       auto-startup: false
 

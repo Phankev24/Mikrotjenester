@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ApiError } from '../../../src/api/api';
+import { API, ApiError } from '../../../src/api/api';
 import { vendorApi } from '../services/VendorApi';
 import type { LoginResponse } from '../types/Login';
 
@@ -48,11 +48,11 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:8082/api/vendors/oauth2/authorization/google';
+        window.location.href = `${API}/api/vendors/oauth2/authorization/google`;
     };
 
     const handleGitHubLogin = () => {
-        window.location.href = 'http://localhost:8082/api/vendors/oauth2/authorization/github';
+        window.location.href = `${API}/api/vendors/oauth2/authorization/github`;
     };
 
     const handleMainMenu = () => {

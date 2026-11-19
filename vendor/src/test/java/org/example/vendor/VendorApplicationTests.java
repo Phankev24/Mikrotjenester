@@ -11,7 +11,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         "spring.config.import=optional:consul:",
         "spring.cloud.consul.enabled=false",
         "spring.cloud.consul.config.enabled=false",
-        "spring.cloud.consul.discovery.enabled=false"
+        "spring.cloud.consul.discovery.enabled=false",
+        "spring.kafka.admin.auto-create=false"
 })
 class VendorApplicationTests {
 

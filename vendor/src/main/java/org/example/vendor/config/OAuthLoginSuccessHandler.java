@@ -2,6 +2,7 @@ package org.example.vendor.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.example.vendor.service.OAuthVendorService;
 import org.example.vendor.service.TokenService;
 import org.example.vendor.vendor.Vendor;
@@ -14,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -37,6 +39,7 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Vendor vendor = oAuthVendorService.findOrCreate(provider, oauth.getPrincipal());
         String token = tokenService.issueToken(vendor, provider.toUpperCase());
+        log.info("Vendor {} logged in through {}", vendor.getExternalId(), provider);
 
         String target = UriComponentsBuilder.fromUriString(clientUrl)
                 .path("/oauth-callback")

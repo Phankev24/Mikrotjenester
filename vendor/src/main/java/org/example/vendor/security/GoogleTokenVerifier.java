@@ -1,5 +1,6 @@
 package org.example.vendor.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 /** Verifies a Google ID token: signature (Google's public keys), expiry, issuer and audience (our client id). */
+@Slf4j
 @Component
 public class GoogleTokenVerifier {
 
@@ -43,15 +45,18 @@ public class GoogleTokenVerifier {
 
     public GoogleUser verify(String idToken) {
         if (clientId.isBlank()) {
+            log.error("Google login attempted but app.google.client-id is not configured");
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Google login is not configured");
         }
         try {
             Jwt jwt = decoder.decode(idToken);
             if (!Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified")) || jwt.getClaimAsString("email") == null) {
+                log.warn("Google login rejected, email is not verified");
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google email is not verified");
             }
             return new GoogleUser(jwt.getClaimAsString("email"), jwt.getClaimAsString("name"));
         } catch (JwtException e) {
+            log.warn("Google login rejected, invalid ID token: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google token");
         }
     }
