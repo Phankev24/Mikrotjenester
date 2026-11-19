@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourcePerFileMappings">
-    <file url="file://$PROJECT_DIR$/vendor/src/main/resources/db/migration/V001__Initial_vendor_schema.sql" value="030285a0-e4c8-4ba2-a031-4b9753d268b9" />
-  </component>
-</project>

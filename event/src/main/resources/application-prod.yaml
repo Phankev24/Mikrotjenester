@@ -7,37 +7,60 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
+      port: ${SPRING_CLOUD_CONSUL_PORT:8500}
+      discovery:
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}-${random.value}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: my-group
+      group-id: event-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: root
-    password: password
-    url: jdbc:postgresql://localhost:5432/eventPlanerManager
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/eventPlanerManager}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
   jpa:
-    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
+springdoc:
+  swagger-ui:
+    config-url: /event/v3/api-docs/swagger-config
+    url: /event/v3/api-docs
+
+services:
+  user:
+    url: ${SERVICES_USER_URL:http://localhost:8100}
+  vendor:
+    url: ${SERVICES_VENDOR_URL:http://localhost:8100}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,env,beans,prometheus
-
   server:
     port: 8080

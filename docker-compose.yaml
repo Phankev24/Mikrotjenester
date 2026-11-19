@@ -31,20 +31,36 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
 
-  postgres:
-    image: postgres:17
-    container_name: postgres
-
-    ports:
-      - "5434:5432"
-
+  db_event:
+    image: postgres:17.6-alpine3.22
     environment:
-      POSTGRES_DB: vendorPlanerManager
+      POSTGRES_DB: eventPlanerManager
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
-
+    ports:
+      - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - db_event_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d eventPlanerManager"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+#  postgres:
+#    image: postgres:17.6
+#    container_name: postgres
+#
+#    ports:
+#      - "5434:5432"
+#
+#    environment:
+#      POSTGRES_DB: vendorPlanerManager
+#      POSTGRES_USER: root
+#      POSTGRES_PASSWORD: password
+#
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
 
   gateway:
     build: ./gateway
@@ -84,14 +100,18 @@ services:
 
   event:
     build: ./event
-    # ports:
-    #   - "8080:8080"
+    depends_on:
+      db_event:
+        condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_CLOUD_CONSUL_HOST: consul
       SPRING_CLOUD_CONSUL_PORT: 8500
       SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS: "true"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db_event:5432/eventPlanerManager
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
       SERVICES_USER_URL: http://user:8081
       SERVICES_VENDOR_URL: http://vendor:8082
 
@@ -103,4 +123,6 @@ services:
       - gateway
 
 volumes:
-  postgres-data:
+  db_event_data:
+#  db_user_data:
+#  db_vendor_data:
