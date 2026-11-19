@@ -13,7 +13,7 @@ interface VendorPortalProps {
     onDataChanged: () => void;
 }
 
-const EVENT_CATEGORIES = ['CONFERENCE', 'WORKSHOP', 'SOCIAL', 'SPORTS', 'MUSIC', 'OTHER'];
+const EVENT_CATEGORIES = ['SOCIAL', 'SPORTS', 'MUSIC', 'CONFERENCE', 'DINNER', 'PERFORMANCE'];
 
 export const VendorPortal: React.FC<VendorPortalProps> = ({ selectedVendorId, onDataChanged }) => {
     const [overview, setOverview] = useState<EventVendorOverviewDto | null>(null);
@@ -283,7 +283,6 @@ export const VendorPortal: React.FC<VendorPortalProps> = ({ selectedVendorId, on
                                                     </p>
                                                 </div>
 
-                                                <button onClick={() => startEditing(ev.externalEventId)}>Edit Event</button>
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                     <button onClick={() => startEditing(ev.externalEventId)}>Edit Event</button>
                                                     <button

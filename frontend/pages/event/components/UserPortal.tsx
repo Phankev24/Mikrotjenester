@@ -17,7 +17,7 @@ interface UserPortalProps {
     onDataChanged: () => void;
 }
 
-const EVENT_CATEGORIES = ['SOCIAL', 'SPORTS', 'MUSIC', 'WORKSHOP', 'CONFERENCE', 'OTHER'];
+const EVENT_CATEGORIES = ['SOCIAL', 'SPORTS', 'MUSIC', 'CONFERENCE', 'DINNER', 'PERFORMANCE'];
 
 export const UserPortal: React.FC<UserPortalProps> = ({
                                                           selectedUserId,
