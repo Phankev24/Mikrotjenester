@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: event
+
+  cloud:
+    discovery:
+      enabled: false
+    consul:
+      enabled: false
+      config:
+        enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+  kafka:
+    listener:
+      auto-startup: false
+
+services:
+  user:
+    url: http://user.test
+  vendor:
+    url: http://vendor.test
