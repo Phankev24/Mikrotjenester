@@ -7,16 +7,17 @@ spring:
 
   cloud:
     consul:
-      host: localhost
-      port: 8500
+      host: ${SPRING_CLOUD_CONSUL_HOST:localhost}
+      port: ${SPRING_CLOUD_CONSUL_PORT:8500}
+      discovery:
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}-${random.value}
 
   kafka:
-    bootstrap-servers: localhost:9092
-
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
     consumer:
       group-id: vendor-group
       auto-offset-reset: earliest
@@ -25,9 +26,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: root
-    password: password
-    url: jdbc:postgresql://localhost:5434/vendorPlanerManager
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/vendorPlanerManager}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
 
   flyway:
     enabled: true
@@ -36,10 +37,8 @@ spring:
 
   jpa:
     generate-ddl: false
-
     hibernate:
       ddl-auto: validate
-
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -54,10 +53,15 @@ spring:
 
 server:
   port: 8082
+  forward-headers-strategy: framework
+
+event:
+  service:
+    url: ${EVENT_SERVICE_URL:http://localhost:8080}
 
 services:
   event:
-    url: http://localhost:8080
+    url: ${EVENT_SERVICE_URL:http://localhost:8080}
 
 app:
   internal:
@@ -72,4 +76,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,.env,beans,prometheus
+        include: health,info,env,beans,prometheus

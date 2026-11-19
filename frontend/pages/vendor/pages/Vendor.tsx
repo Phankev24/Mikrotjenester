@@ -23,14 +23,13 @@ export default function VendorPage() {
     const [error, setError] = useState<string | null>(null);
 
     const loadVendors = async () => {
+        setError(null);
         try {
-            const res = await fetch('/api/vendors');
-            if (res.ok) {
-                const data = await res.json();
-                setVendors(Array.isArray(data) ? data : []);
-            }
-        } catch {
-            // Ignorer lastefeil ved oppstart hvis endepunktet ikke svarer
+            const data = await vendorApi.getAllVendors();
+            setVendors(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error('Failed to load vendors:', err);
+            setError(err instanceof Error ? err.message : 'Kunne ikke hente vendorer');
         }
     };
 

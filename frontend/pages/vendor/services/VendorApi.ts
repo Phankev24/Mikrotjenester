@@ -34,6 +34,13 @@ export const vendorApi = {
             'Klarte ikke å hente profilen'
         ),
 
+    getAllVendors: () =>
+        request<Vendor[]>(
+            '/api/vendors', // or '/api/vendor' if your controller uses singular
+            {},
+            'Kunne ikke hente vendorer'
+        ),
+
     updateVendor: (
         id: string,
         body: VendorPatchRequest
