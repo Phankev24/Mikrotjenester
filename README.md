@@ -1,4 +1,8 @@
 # EP&M cheat sheet (Event Planning & Management)
+### Candidate Numbers: 
+- Candidate 1: 28
+- Candidate 2: 12
+- Candidate 3: 14
 
 PG3402 exam project by Kevin Phan, Sadik Partalko and Rich Rase.
 Users and vendors create and join events. Spring Boot services behind a gateway, React frontend, Kafka, Consul and Postgres, all started with Docker Compose.
