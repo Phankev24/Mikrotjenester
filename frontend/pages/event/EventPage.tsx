@@ -177,6 +177,8 @@ export default function EventPage() {
                         {mode === 'USER' && (
                             <UserPortal
                                 selectedUserId={selectedUserId}
+                                vendorsWithEvents={vendorsWithEvents}
+                                usersWithEvents={usersWithEvents}
                                 onDataChanged={loadDirectoryData}
                             />
                         )}

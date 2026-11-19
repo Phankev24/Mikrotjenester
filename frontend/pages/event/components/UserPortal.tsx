@@ -5,19 +5,26 @@ import {
     EventCreateDto,
     EventResponseDto,
     EventUpdateDto,
+    EventUserResponseDto,
+    EventVendorResponseDto,
 } from '../types/event';
-import {OrganizerNotifications} from "./OrganizerNotifications.tsx";
-
+import { OrganizerNotifications } from './OrganizerNotifications.tsx';
 
 interface UserPortalProps {
     selectedUserId: string;
-    onDataChanged: () => void; // Refreshes parent directory state after creating/updating
+    vendorsWithEvents: EventVendorResponseDto[];
+    usersWithEvents: EventUserResponseDto[];
+    onDataChanged: () => void;
 }
 
-// Adjust these strings to match your Java EventCategory enum constants
 const EVENT_CATEGORIES = ['SOCIAL', 'SPORTS', 'MUSIC', 'WORKSHOP', 'CONFERENCE', 'OTHER'];
 
-export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataChanged }) => {
+export const UserPortal: React.FC<UserPortalProps> = ({
+                                                          selectedUserId,
+                                                          vendorsWithEvents,
+                                                          usersWithEvents,
+                                                          onDataChanged,
+                                                      }) => {
     const [allEvents, setAllEvents] = useState<EventResponseDto[]>([]);
     const [joinedEvents, setJoinedEvents] = useState<EventAttendanceResponseDto[]>([]);
     const [hostedEvents, setHostedEvents] = useState<EventAttendanceResponseDto[]>([]);
@@ -178,6 +185,35 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
         }
     };
 
+    const resolveOrganizerInfo = (event: EventResponseDto) => {
+        if (event.externalVendorId) {
+            const match = vendorsWithEvents.find(
+                ({ vendors: v }) => v.externalId === event.externalVendorId
+            );
+            const v = match?.vendors;
+            return {
+                roleLabel: 'Official Vendor',
+                name: v ? v.companyName : 'Verified Vendor',
+                email: v?.email,
+                extra: v?.website || v?.phone,
+                id: event.externalVendorId,
+            };
+        }
+
+        const organizerUuid = event.externalUserId || event.eventOrganizer;
+        const match = usersWithEvents.find(
+            ({ user: u }) => u.externalUserId === organizerUuid
+        );
+        const u = match?.user;
+        return {
+            roleLabel: 'Community Organizer',
+            name: u ? `${u.firstName} ${u.lastName} (@${u.username})` : 'Community Member',
+            email: u?.email,
+            extra: u?.phoneNumber,
+            id: organizerUuid,
+        };
+    };
+
     if (!selectedUserId) {
         return <p>Select a user from the top bar to begin.</p>;
     }
@@ -200,7 +236,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
             {/* Top Grid: Create Event + My Personal Activity */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                 {/* Create User Event Form */}
-                <section style={{ border: '1px solid #ccc', padding: '1rem' }}>
+                <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
                     <h3>Host a Community Event</h3>
                     <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         <input
@@ -250,7 +286,7 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
                 </section>
 
                 {/* My Joined & Hosted Events Summary */}
-                <section style={{ border: '1px solid #ccc', padding: '1rem' }}>
+                <section style={{ border: '1px solid #ccc', padding: '1rem', backgroundColor: '#fff' }}>
                     <h3>My Activity</h3>
 
                     <h4>Events I'm Attending ({joinedEvents.length})</h4>
@@ -294,11 +330,22 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {allEvents.map((event) => {
                             const isJoined = joinedEventIds.has(event.externalEventId);
-                            const isOrganizer = event.eventOrganizer === selectedUserId;
+                            const isOrganizer =
+                                event.eventOrganizer === selectedUserId ||
+                                event.externalUserId === selectedUserId;
                             const isVendorEvent = Boolean(event.externalVendorId);
+                            const organizer = resolveOrganizerInfo(event);
 
                             return (
-                                <div key={event.externalEventId} style={{ border: '1px solid #bbb', padding: '1rem' }}>
+                                <div
+                                    key={event.externalEventId}
+                                    style={{
+                                        border: '1px solid #bbb',
+                                        borderLeft: `4px solid ${isVendorEvent ? '#2563eb' : '#d97706'}`,
+                                        padding: '1rem',
+                                        backgroundColor: '#fff',
+                                    }}
+                                >
                                     {editingEventId === event.externalEventId ? (
                                         /* Inline Edit Form */
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -330,31 +377,83 @@ export const UserPortal: React.FC<UserPortalProps> = ({ selectedUserId, onDataCh
                                     ) : (
                                         /* Standard Event Card */
                                         <>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                <div>
-                          <span
-                              style={{
-                                  fontSize: '0.75rem',
-                                  padding: '0.15rem 0.4rem',
-                                  backgroundColor: isVendorEvent ? '#dbeafe' : '#fef3c7',
-                                  border: '1px solid #999',
-                                  marginRight: '0.5rem',
-                              }}
-                          >
-                            {isVendorEvent ? 'VENDOR EVENT' : 'COMMUNITY EVENT'}
-                          </span>
-                                                    <span style={{ fontSize: '0.8rem', color: '#555' }}>[{event.eventCategory}]</span>
-                                                    <h3 style={{ margin: '0.4rem 0' }}>{event.eventName}</h3>
-                                                    <p style={{ margin: '0.25rem 0' }}>{event.eventDescription}</p>
-                                                    <p style={{ fontSize: '0.9rem', color: '#444' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                        <span
+                                                            style={{
+                                                                fontSize: '0.75rem',
+                                                                fontWeight: 600,
+                                                                padding: '0.15rem 0.45rem',
+                                                                backgroundColor: isVendorEvent ? '#dbeafe' : '#fef3c7',
+                                                                border: '1px solid #999',
+                                                            }}
+                                                        >
+                                                            {isVendorEvent ? 'VENDOR EVENT' : 'COMMUNITY EVENT'}
+                                                        </span>
+                                                        <span style={{ fontSize: '0.8rem', color: '#555' }}>[{event.eventCategory}]</span>
+                                                        {isOrganizer && (
+                                                            <span
+                                                                style={{
+                                                                    fontSize: '0.75rem',
+                                                                    fontWeight: 600,
+                                                                    padding: '0.15rem 0.45rem',
+                                                                    backgroundColor: '#dcfce7',
+                                                                    color: '#166534',
+                                                                    border: '1px solid #86efac',
+                                                                }}
+                                                            >
+                                                                Your Event
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <h3 style={{ margin: '0.45rem 0 0.25rem 0' }}>{event.eventName}</h3>
+                                                    <p style={{ margin: '0.25rem 0 0.65rem 0' }}>{event.eventDescription}</p>
+
+                                                    {/* Organizer Details Box */}
+                                                    <div
+                                                        style={{
+                                                            padding: '0.5rem 0.75rem',
+                                                            marginBottom: '0.6rem',
+                                                            backgroundColor: '#f8fafc',
+                                                            border: '1px solid #e2e8f0',
+                                                            borderRadius: '4px',
+                                                            fontSize: '0.85rem',
+                                                            color: '#334155',
+                                                        }}
+                                                    >
+                                                        <strong>Organizer ({organizer.roleLabel}):</strong> {organizer.name}
+                                                        {organizer.email && <span> | Email: {organizer.email}</span>}
+                                                        {organizer.extra && <span> | {organizer.extra}</span>}
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.15rem' }}>
+                                                            Organizer ID: <code>{organizer.id}</code>
+                                                        </div>
+                                                    </div>
+
+                                                    <p style={{ fontSize: '0.9rem', color: '#444', margin: 0 }}>
                                                         Location: <strong>{event.eventLocation}</strong> | Max Capacity:{' '}
                                                         <strong>{event.eventAttendance}</strong>
                                                         {event.eventDateTime && ` | Date: ${new Date(event.eventDateTime).toLocaleString()}`}
                                                     </p>
                                                 </div>
 
-                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                    {isJoined ? (
+                                                <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                                                    {isOrganizer ? (
+                                                        <button
+                                                            disabled
+                                                            title="You cannot join an event you organized"
+                                                            style={{
+                                                                backgroundColor: '#f1f5f9',
+                                                                color: '#64748b',
+                                                                border: '1px solid #cbd5e1',
+                                                                cursor: 'not-allowed',
+                                                                padding: '0.35rem 0.65rem',
+                                                            }}
+                                                        >
+                                                            Host (Cannot Join)
+                                                        </button>
+                                                    ) : isJoined ? (
                                                         <button onClick={() => handleLeaveEvent(event.externalEventId)}>Leave Event</button>
                                                     ) : (
                                                         <button onClick={() => handleJoinEvent(event.externalEventId)}>Join Event</button>
