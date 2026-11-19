@@ -35,7 +35,7 @@ export default function RegisterPage({ onRegistered, onBack }: Props) {
             return;
         }
 
-        setBusy(index => true);
+        setBusy(true);
         try {
             await vendorApi.register({ companyName, email, password, phone, website, description });
             onRegistered();
@@ -71,7 +71,7 @@ export default function RegisterPage({ onRegistered, onBack }: Props) {
                     {busy ? 'Lagrer...' : 'Opprett konto'}
                 </button>
                 <button type="button" onClick={onBack} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' }}>
-                    Tilbake til innlogging
+                    Allerede registrert? Logg inn
                 </button>
             </form>
         </div>

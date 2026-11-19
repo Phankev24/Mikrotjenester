@@ -1,163 +1,133 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { vendorApi } from '../services/VendorApi';
+import type { Vendor } from '../types/Vendor';
 
-interface Vendor {
-    externalId: string;
-    companyName: string;
-    email: string;
-    phone: string;
-    website: string;
-    description: string;
-}
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '0.5rem',
+    boxSizing: 'border-box',
+    marginTop: '0.25rem',
+};
 
 export default function VendorPage() {
     const navigate = useNavigate();
     const [vendors, setVendors] = useState<Vendor[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // Skjemastate for ny vendor
     const [companyName, setCompanyName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
     const [website, setWebsite] = useState('');
     const [description, setDescription] = useState('');
+    const [message, setMessage] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    // Hent alle vendorer (GET) via Gateway på port 8100
-    const fetchVendors = async () => {
+    const loadVendors = async () => {
         try {
-            setLoading(true);
-            const response = await fetch('http://localhost:8100/api/vendors');
-            if (!response.ok) throw new Error('Klarte ikke å hente vendorer fra serveren');
-            const data = await response.json();
-            setVendors(data);
-            setError(null);
-        } catch (err: any) {
-            setError(err.message || 'Noe gikk galt');
-        } finally {
-            setLoading(false);
+            const res = await fetch('/api/vendors');
+            if (res.ok) {
+                const data = await res.json();
+                setVendors(Array.isArray(data) ? data : []);
+            }
+        } catch {
+            // Ignorer lastefeil ved oppstart hvis endepunktet ikke svarer
         }
     };
 
     useEffect(() => {
-        fetchVendors();
+        loadVendors();
     }, []);
 
-    // Opprett ny vendor (POST) via Gateway på port 8100
-    const handleCreateVendor = async (e: React.FormEvent) => {
+    const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Valider passordlengde (8-72 tegn)
-        if (password.length < 8 || password.length > 72) {
-            alert('Passordet må være mellom 8 og 72 tegn.');
-            return;
-        }
-
+        setMessage(null);
+        setError(null);
         try {
-            const response = await fetch('http://localhost:8100/api/vendors', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    companyName,
-                    email,
-                    password,
-                    phone,
-                    website,
-                    description
-                }),
-            });
-
-            if (!response.ok) throw new Error('Klarte ikke å opprette vendor');
-
-            // Nullstill skjemaet og oppdater listen
+            await vendorApi.register({ companyName, email, password, phone, website, description });
             setCompanyName('');
             setEmail('');
             setPassword('');
             setPhone('');
             setWebsite('');
             setDescription('');
-            fetchVendors();
-        } catch (err: any) {
-            alert(err.message);
+            setMessage('Vendor opprettet');
+            await loadVendors();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Kunne ikke opprette vendor');
         }
     };
 
+    const handleMainMenu = () => {
+        window.location.href = 'http://localhost:5173';
+    };
+
     return (
-        <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1>Vendor Administrasjon</h1>
-                <button
-                    type="button"
-                    onClick={() => navigate('/vendor/login')}
-                    style={{ background: '#2563eb', color: 'white', padding: '0.6rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                    Til innlogging
-                </button>
+        <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: 900, margin: '0 auto' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h1 style={{ margin: 0 }}>Vendor Administrasjon</h1>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        type="button"
+                        onClick={handleMainMenu}
+                        style={{ background: '#4b5563', color: '#fff', padding: '0.6rem 1rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                        Hovedmeny
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/vendor/login')}
+                        style={{ background: '#2563eb', color: '#fff', padding: '0.6rem 1rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                        Til innlogging
+                    </button>
+                </div>
             </header>
 
-            {/* Skjema for å legge til vendor */}
-            <div style={{ background: '#f9f9f9', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid #ddd' }}>
-                <h2>Registrer ny Vendor (POST /api/vendors)</h2>
-                <form onSubmit={handleCreateVendor} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div>
-                        <label>Bedriftsnavn:</label><br />
-                        <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
-                    </div>
-                    <div>
-                        <label>E-post:</label><br />
-                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.5rem' }} />
-                    </div>
-                    <div>
-                        <label>Passord (8-72 tegn):</label><br />
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            minLength={8}
-                            maxLength={72}
-                            style={{ width: '100%', padding: '0.5rem' }}
-                        />
-                    </div>
-                    <div>
-                        <label>Telefon:</label><br />
-                        <input type="text" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
-                    </div>
-                    <div>
-                        <label>Nettside:</label><br />
-                        <input type="text" value={website} onChange={e => setWebsite(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
-                    </div>
-                    <div>
-                        <label>Beskrivelse:</label><br />
-                        <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%', padding: '0.5rem' }} />
-                    </div>
-                    <button type="submit" style={{ background: '#28a745', color: 'white', padding: '0.75rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+            <section style={{ background: '#fff', padding: '1.5rem', borderRadius: 8, border: '1px solid #e5e7eb', marginBottom: '2rem' }}>
+                <h2 style={{ marginTop: 0 }}>Registrer ny Vendor (POST /api/vendors)</h2>
+                <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                    <label>Bedriftsnavn:
+                        <input style={inputStyle} value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+                    </label>
+                    <label>E-post:
+                        <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+                    </label>
+                    <label>Passord (8-72 tegn):
+                        <input style={inputStyle} type="password" minLength={8} maxLength={72} value={password} onChange={e => setPassword(e.target.value)} required />
+                    </label>
+                    <label>Telefon:
+                        <input style={inputStyle} value={phone} onChange={e => setPhone(e.target.value)} />
+                    </label>
+                    <label>Nettside:
+                        <input style={inputStyle} value={website} onChange={e => setWebsite(e.target.value)} />
+                    </label>
+                    <label>Beskrivelse:
+                        <textarea style={inputStyle} rows={3} value={description} onChange={e => setDescription(e.target.value)} />
+                    </label>
+
+                    {message && <p style={{ color: '#15803d', margin: 0 }}>{message}</p>}
+                    {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
+
+                    <button type="submit" style={{ background: '#28a745', color: '#fff', padding: '0.75rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>
                         Lagre Vendor
                     </button>
                 </form>
-            </div>
+            </section>
 
-            {/* Liste over eksisterende vendorer */}
-            <h2>Eksisterende Vendorer (GET /api/vendors)</h2>
-            {loading && <p>Laster vendorer...</p>}
-            {error && <p style={{ color: 'red' }}>Feil ved henting: {error}</p>}
-            {!loading && !error && vendors.length === 0 && <p>Ingen vendorer funnet.</p>}
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {vendors.map(v => (
-                    <div key={v.externalId} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '6px', background: '#fff' }}>
-                        <h3>{v.companyName}</h3>
-                        <p><strong>E-post:</strong> {v.email}</p>
-                        <p><strong>Telefon:</strong> {v.phone}</p>
-                        <p><strong>Nettside:</strong> <a href={v.website} target="_blank" rel="noreferrer">{v.website}</a></p>
-                        <p><strong>Beskrivelse:</strong> {v.description}</p>
-                        <p style={{ fontSize: '0.8rem', color: '#666' }}>ID: {v.externalId}</p>
-                    </div>
-                ))}
-            </div>
+            <section>
+                <h2>Eksisterende Vendorer (GET /api/vendors)</h2>
+                {vendors.length === 0 ? (
+                    <p style={{ color: '#6b7280' }}>Ingen vendorer funnet.</p>
+                ) : (
+                    <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: '1.2rem' }}>
+                        {vendors.map((v, idx) => (
+                            <li key={v.externalId ?? idx}>
+                                <strong>{v.companyName}</strong> ({v.email})
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </section>
         </div>
     );
 }

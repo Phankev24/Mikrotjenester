@@ -36,7 +36,6 @@ export default function VendorApp() {
 
     return (
         <Routes>
-            {/* Standardlandingsside for /vendor/ er nå Login, eller du kan snu omvisningen */}
             <Route path="login" element={
                 <LoginPage
                     onLogin={handleLogin}
@@ -62,9 +61,9 @@ export default function VendorApp() {
                     : <Navigate to="/vendor/login" replace />
             } />
 
-            {/* Standardrute sender til login først */}
-            <Route index element={<Navigate to="/vendor/login" replace />} />
-            <Route path="*" element={<Navigate to="/vendor/login" replace />} />
+            {/* Standardrute sender til registrer vendor først */}
+            <Route index element={<Navigate to="/vendor/register" replace />} />
+            <Route path="*" element={<Navigate to="/vendor/register" replace />} />
         </Routes>
     );
 }

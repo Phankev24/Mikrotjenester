@@ -12,6 +12,20 @@ interface Props {
 
 const input: React.CSSProperties = { width: '100%', padding: '0.6rem', boxSizing: 'border-box' };
 const linkButton: React.CSSProperties = { background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer' };
+const boxButton: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    width: '100%',
+    padding: '0.5rem',
+    background: '#fff',
+    color: '#1f2937',
+    border: '1px solid #d1d5db',
+    borderRadius: 4,
+    cursor: 'pointer',
+    fontWeight: 'bold',
+};
 
 export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }: Props) {
     const [email, setEmail] = useState('');
@@ -41,6 +55,10 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
         window.location.href = 'http://localhost:8082/api/vendors/oauth2/authorization/github';
     };
 
+    const handleMainMenu = () => {
+        window.location.href = 'http://localhost:5173';
+    };
+
     return (
         <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', fontFamily: 'sans-serif', background: '#f3f4f6' }}>
             <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: 8, width: 340, boxShadow: '0 2px 10px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -66,7 +84,7 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
                     <button
                         type="button"
                         onClick={handleGoogleLogin}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '0.5rem', background: '#fff', color: '#1f2937', border: '1px solid #d1d5db', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}
+                        style={boxButton}
                     >
                         Google Login
                     </button>
@@ -78,6 +96,14 @@ export default function LoginPage({ onLogin, onRegister, onShowVendors, notice }
                     >
                         <img src="/icons/github.svg" alt="GitHub" width="18" height="18" style={{ filter: 'invert(1)' }} />
                         GitHub Login
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleMainMenu}
+                        style={boxButton}
+                    >
+                        Hovedmeny
                     </button>
                 </div>
 

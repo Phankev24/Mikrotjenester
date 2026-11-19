@@ -8,7 +8,7 @@ import type { Vendor, VendorPatchRequest } from '../types/Vendor';
 interface Props {
     session: LoginResponse;
     onLogout: () => void;
-    onBackToVendors?: () => void; // Lagt til for tilbake-knapp
+    onBackToVendors?: () => void;
 }
 
 const card = { background: '#fff', padding: '1.5rem', borderRadius: 8, border: '1px solid #ddd', marginBottom: '1.5rem' } as const;
@@ -30,6 +30,10 @@ export default function DashboardPage({ session, onLogout, onBackToVendors }: Pr
         setVendor(await vendorApi.updateVendor(session.externalId, patch));
     };
 
+    const handleMainMenu = () => {
+        window.location.href = 'http://localhost:5173';
+    };
+
     if (loadError) {
         return (
             <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
@@ -48,9 +52,12 @@ export default function DashboardPage({ session, onLogout, onBackToVendors }: Pr
                     <small style={{ color: '#666' }}>ID: {vendor.externalId}</small>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={handleMainMenu} style={{ background: '#2563eb', color: '#fff', padding: '0.6rem 1rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>
+                        Hovedmeny
+                    </button>
                     {onBackToVendors && (
                         <button onClick={onBackToVendors} style={{ background: '#4b5563', color: '#fff', padding: '0.6rem 1rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>
-                            Tilbake
+                            Vendors
                         </button>
                     )}
                     <button onClick={onLogout} style={{ background: '#b91c1c', color: '#fff', padding: '0.6rem 1rem', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 'bold' }}>
