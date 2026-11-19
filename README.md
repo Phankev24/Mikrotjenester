@@ -4,7 +4,8 @@
 - Candidate 2: 12
 - Candidate 3: 14
 
-PG3402 exam project by Kevin Phan, Sadik Partalko and Rich Rase.
+For preface: This exam has only been coded and executed on Windows machines.
+
 Users and vendors create and join events. Spring Boot services behind a gateway, React frontend, Kafka, Consul and Postgres, all started with Docker Compose.
 
 ---
