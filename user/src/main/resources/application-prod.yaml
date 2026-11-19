@@ -3,7 +3,7 @@ spring:
     name: user
 
   config:
-    import: "optional:consul:,optional:file:.env[.properties]"
+    import: "optional:consul:,optional:file:..env[.properties]"
 
   cloud:
     consul:

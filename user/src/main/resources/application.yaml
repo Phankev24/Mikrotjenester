@@ -11,6 +11,6 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,env,beans, prometheus
+        include: health,info,.env,beans, prometheus
   server:
     port: 8081
